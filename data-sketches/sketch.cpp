@@ -8,6 +8,7 @@
 #include <string>
 #include <random>
 #include <chrono>
+#include <set>
 
 constexpr uint16_t SKETCH_SIZE{1024};
 constexpr size_t REPS_NUMBER{10};
@@ -160,83 +161,104 @@ std::vector<StreamElement> generateStream(uint32_t streamSize) {
 
 
 int main() {
-    // Test
-    // const std::vector<StreamElement> stream{ {1, 0.4}, {2, 0.5}, {3, 0.3} };
-    // const size_t seed{7};
+    // Test - estimate cardinality
+    const uint32_t samplesNumber{4096};
+    const uint32_t minSampleId{1};
+    const uint32_t maxSampleId{100000};
 
-    // Sketch sketch1;
-    // size_t comparisons1 = createExpSketch(sketch1, stream, seed);
+    std::mt19937 gen{std::random_device{}()};
+    std::uniform_int_distribution<uint32_t> dist{minSampleId, maxSampleId};
 
-    // Sketch sketch2;
-    // size_t comparisons2 = createFastExpSketch(sketch2, stream, seed);
-
-    // std::cout << "ExpSketch: ";`
-    // for(size_t i = 0; i < SKETCH_SIZE; i++) {
-    //     std::cout << sketch1.values[i] << " ";
-    // }
-    // std::cout << " [" << comparisons1 << "]\n";
-
-    // std::cout << "FastExpSketch: ";
-    // for(size_t i = 0; i < SKETCH_SIZE; i++) {
-    //     std::cout << sketch2.values[i] << " ";
-    // }
-    // std::cout << " [" << comparisons2 << "]\n";
-
-    // Data generation
-    std::vector<uint32_t> streamSizes{};
-    for(uint32_t i = 50; i <= 1000; i += 50) {
-        streamSizes.emplace_back(i);
+    std::set<uint32_t> streamIds{};
+    while(streamIds.size() < samplesNumber) {
+        streamIds.insert(dist(gen));
     }
 
-    std::vector<double> allExpSketchComparisons{};
-    std::vector<double> allExpSketchTimes{};
-    std::vector<double> allFastExpSketchComparisons{};
-    std::vector<double> allFastExpSketchTimes{};
-
-    for(auto iter = streamSizes.begin(); iter != streamSizes.end(); ++iter) {
-        double sumOfExpSketchComparisons{0.0};
-        double sumOfExpSketchTimes{0.0};
-        double sumOfFastExpSketchComparisons{0.0};
-        double sumOfFastExpSketchTimes{0.0};
-
-        for(size_t rep = 0; rep < REPS_NUMBER; rep++) {
-            auto stream = generateStream(*iter);
-            Sketch sketch1, sketch2;
-            size_t comparisons1, comparisons2;
-
-            auto startTime = std::chrono::high_resolution_clock::now();
-            comparisons1 = createExpSketch(sketch1, stream, SEED);
-            auto midTime = std::chrono::high_resolution_clock::now();
-            comparisons2 = createFastExpSketch(sketch2, stream, SEED);
-            auto endTime = std::chrono::high_resolution_clock::now();
-
-            sumOfExpSketchComparisons += comparisons1;
-            sumOfFastExpSketchComparisons += comparisons2;
-            sumOfExpSketchTimes += static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(midTime - startTime).count()) / 1000000;
-            sumOfFastExpSketchTimes += static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(endTime - midTime).count()) / 1000000;
+    std::vector<StreamElement> stream1{};
+    std::vector<StreamElement> stream2{};
+    for(auto iter = streamIds.begin(); iter != streamIds.end(); ++iter) {
+        if(*iter % 3 == 0) {
+            stream1.emplace_back(StreamElement{*iter, 1});
         }
-
-        allExpSketchComparisons.emplace_back(sumOfExpSketchComparisons / REPS_NUMBER);
-        allExpSketchTimes.emplace_back(sumOfExpSketchTimes / REPS_NUMBER);
-        allFastExpSketchComparisons.emplace_back(sumOfFastExpSketchComparisons / REPS_NUMBER);
-        allFastExpSketchTimes.emplace_back(sumOfFastExpSketchTimes / REPS_NUMBER);
-
-        std::cout << *iter << std::endl;
+        else {
+            stream2.emplace_back(StreamElement{*iter, 1});
+        }
     }
-
-    // Save data to file
-    std::ofstream outputFile{"cpp-implementation.txt"};
-    outputFile << "sketch-size: " << SKETCH_SIZE << std::endl << "reps: " << REPS_NUMBER << std::endl;
     
-    outputFile << "comparisions:" << std::endl;
-    for(size_t i = 0; i < streamSizes.size(); i++) {
-        outputFile << streamSizes[i] << " " << allExpSketchComparisons[i] << " " << allFastExpSketchComparisons[i] << std::endl;
+    Sketch sketch1;
+    createFastExpSketch(sketch1, stream1, SEED);
+    Sketch sketch2;
+    createFastExpSketch(sketch2, stream2, SEED);
+
+    double sketch1Sum{0.0};
+    double sketch2Sum{0.0};
+    for(uint16_t i = 0; i < SKETCH_SIZE; i++) {
+        sketch1Sum += sketch1.values[i];
+        sketch2Sum += sketch2.values[i];
     }
 
-    outputFile << "times:" << std::endl;
-    for(size_t i = 0; i < streamSizes.size(); i++) {
-        outputFile << streamSizes[i] << " " << allExpSketchTimes[i] << " " << allFastExpSketchTimes[i] << std::endl;
-    }
+    double cardinality1{static_cast<double>(SKETCH_SIZE - 1) / sketch1Sum};
+    double cardinality2{static_cast<double>(SKETCH_SIZE - 1) / sketch2Sum};
+
+    std::cout << "cardinality of first group: " << stream1.size() << " " << cardinality1 << std::endl;
+    std::cout << "cardinality of second group: " << stream2.size() << " " << cardinality2 << std::endl;
+
+
+    // Chart data generation
+    // std::vector<uint32_t> streamSizes{};
+    // for(uint32_t i = 50; i <= 1000; i += 50) {
+    //     streamSizes.emplace_back(i);
+    // }
+
+    // std::vector<double> allExpSketchComparisons{};
+    // std::vector<double> allExpSketchTimes{};
+    // std::vector<double> allFastExpSketchComparisons{};
+    // std::vector<double> allFastExpSketchTimes{};
+
+    // for(auto iter = streamSizes.begin(); iter != streamSizes.end(); ++iter) {
+    //     double sumOfExpSketchComparisons{0.0};
+    //     double sumOfExpSketchTimes{0.0};
+    //     double sumOfFastExpSketchComparisons{0.0};
+    //     double sumOfFastExpSketchTimes{0.0};
+
+    //     for(size_t rep = 0; rep < REPS_NUMBER; rep++) {
+    //         auto stream = generateStream(*iter);
+    //         Sketch sketch1, sketch2;
+    //         size_t comparisons1, comparisons2;
+
+    //         auto startTime = std::chrono::high_resolution_clock::now();
+    //         comparisons1 = createExpSketch(sketch1, stream, SEED);
+    //         auto midTime = std::chrono::high_resolution_clock::now();
+    //         comparisons2 = createFastExpSketch(sketch2, stream, SEED);
+    //         auto endTime = std::chrono::high_resolution_clock::now();
+
+    //         sumOfExpSketchComparisons += comparisons1;
+    //         sumOfFastExpSketchComparisons += comparisons2;
+    //         sumOfExpSketchTimes += static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(midTime - startTime).count()) / 1000000;
+    //         sumOfFastExpSketchTimes += static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(endTime - midTime).count()) / 1000000;
+    //     }
+
+    //     allExpSketchComparisons.emplace_back(sumOfExpSketchComparisons / REPS_NUMBER);
+    //     allExpSketchTimes.emplace_back(sumOfExpSketchTimes / REPS_NUMBER);
+    //     allFastExpSketchComparisons.emplace_back(sumOfFastExpSketchComparisons / REPS_NUMBER);
+    //     allFastExpSketchTimes.emplace_back(sumOfFastExpSketchTimes / REPS_NUMBER);
+
+    //     std::cout << *iter << std::endl;
+    // }
+
+    // // Save data to file
+    // std::ofstream outputFile{"cpp-implementation.txt"};
+    // outputFile << "sketch-size: " << SKETCH_SIZE << std::endl << "reps: " << REPS_NUMBER << std::endl;
+    
+    // outputFile << "comparisions:" << std::endl;
+    // for(size_t i = 0; i < streamSizes.size(); i++) {
+    //     outputFile << streamSizes[i] << " " << allExpSketchComparisons[i] << " " << allFastExpSketchComparisons[i] << std::endl;
+    // }
+
+    // outputFile << "times:" << std::endl;
+    // for(size_t i = 0; i < streamSizes.size(); i++) {
+    //     outputFile << streamSizes[i] << " " << allExpSketchTimes[i] << " " << allFastExpSketchTimes[i] << std::endl;
+    // }
 
     return 0;
 }

@@ -6,7 +6,7 @@ import time
 bitsInHash = sys.hash_info[0]
 
 def hashFun(i, k, seed):
-    hashStr = f'{bin(int(i))[2:]:0>32}{bin(int(k))[2:]:0>32}{bin(int(seed))[2:]:0>32}'
+    hashStr = f"{bin(int(i))[2:]:0>32}{bin(int(k))[2:]:0>32}{bin(int(seed))[2:]:0>32}"
     
     return abs(hash(hashStr)) / 2 ** bitsInHash
 
@@ -60,7 +60,7 @@ def updateFastExpSketch(sketch, inputStream, seed):
         identifier = inputStream[i][0]
         value = inputStream[i][1]
 
-        random.seed(identifier)
+        random.seed(int(identifier))
 
         s = 0
         updateMax = False
@@ -100,68 +100,77 @@ def generateStream(streamSize):
     return np.array([[i, random.uniform(0.0, 1.0)] for i in range(1, streamSize + 1)], dtype=float)
 
 
-# Test
-# sketchSize = 5
-# stream = np.array([[1, 0.4], [2, 0.5], [3, 0.3]])
-# seed = 7
-
-# print("ExpSketch: ", createExpSketch(stream, sketchSize, seed))
-# print("FastExpSketch:", createFastExpSketch(stream, sketchSize, seed))
-
-
-# Data generation
+# Test - estimate cardinality
 sketchSize = 1024
-seed = 17
-repeats = 10
-streamSizes = [i for i in range(50, 1001, 50)]
+seed = 7
+samplesNumber = 4096
+minSampleId = 1
+maxSampleId = 100000
 
-allExpSketchComparisons = []
-allExpSketchTimes = []
+stream = np.array([[id, 1] for id in random.sample(range(minSampleId, maxSampleId), samplesNumber)])
+stream1 = np.array([x for x in stream if x[0] % 3 == 0])
+stream2 = np.array([x for x in stream if x[0] % 3 != 0])
 
-allFastExpSketchComparisons = []
-allFastExpSketchTimes = []
+sketch1, _ = createFastExpSketch(stream1, sketchSize, seed)
+sketch2, _ = createFastExpSketch(stream2, sketchSize, seed)
 
-for size in streamSizes:
-    expSketchComparisons = []
-    expSketchTimes = []
+print("cardinality of first group:", len(stream1), (len(sketch1) - 1) / sum(sketch1))
+print("cardinality of second group:", len(stream2), (len(sketch2) - 1) / sum(sketch2))
 
-    fastExpSketchComparisons = []
-    fastExpSketchTimes = []
 
-    for i in range(repeats):
-        stream = generateStream(size)
+# Chart data generation
+# sketchSize = 1024
+# seed = 17
+# repeats = 10
+# streamSizes = [i for i in range(50, 1001, 50)]
 
-        startTime = time.time()
-        sketch, comparisons = createExpSketch(stream, sketchSize, seed)
-        endTime = time.time()
-        elapsedTime = endTime - startTime
+# allExpSketchComparisons = []
+# allExpSketchTimes = []
 
-        expSketchComparisons.append(comparisons)
-        expSketchTimes.append(elapsedTime)
+# allFastExpSketchComparisons = []
+# allFastExpSketchTimes = []
 
-        startTime = time.time()
-        sketch, comparisons = createFastExpSketch(stream, sketchSize, seed)
-        endTime = time.time()
-        elapsedTime = endTime - startTime
+# for size in streamSizes:
+#     expSketchComparisons = []
+#     expSketchTimes = []
+
+#     fastExpSketchComparisons = []
+#     fastExpSketchTimes = []
+
+#     for i in range(repeats):
+#         stream = generateStream(size)
+
+#         startTime = time.time()
+#         sketch, comparisons = createExpSketch(stream, sketchSize, seed)
+#         endTime = time.time()
+#         elapsedTime = endTime - startTime
+
+#         expSketchComparisons.append(comparisons)
+#         expSketchTimes.append(elapsedTime)
+
+#         startTime = time.time()
+#         sketch, comparisons = createFastExpSketch(stream, sketchSize, seed)
+#         endTime = time.time()
+#         elapsedTime = endTime - startTime
         
-        fastExpSketchComparisons.append(comparisons)
-        fastExpSketchTimes.append(elapsedTime)
+#         fastExpSketchComparisons.append(comparisons)
+#         fastExpSketchTimes.append(elapsedTime)
     
-    allExpSketchComparisons.append(sum(expSketchComparisons) / repeats)
-    allExpSketchTimes.append(sum(expSketchTimes) / repeats)
-    allFastExpSketchComparisons.append(sum(fastExpSketchComparisons) / repeats)
-    allFastExpSketchTimes.append(sum(fastExpSketchTimes) / repeats)
+#     allExpSketchComparisons.append(sum(expSketchComparisons) / repeats)
+#     allExpSketchTimes.append(sum(expSketchTimes) / repeats)
+#     allFastExpSketchComparisons.append(sum(fastExpSketchComparisons) / repeats)
+#     allFastExpSketchTimes.append(sum(fastExpSketchTimes) / repeats)
 
-    print(size)
+#     print(size)
 
 
-# Save data to file
-with open("python-implementation.txt", "w") as file:
-    file.write("sketch-size: {}\n".format(sketchSize))
-    file.write("reps: {}\n".format(repeats))
-    file.write("comparisions:\n")
-    for i in range(len(streamSizes)):
-        file.write("{} {} {}\n".format(streamSizes[i], allExpSketchComparisons[i], allFastExpSketchComparisons[i]))
-    file.write("times:\n")
-    for i in range(len(streamSizes)):
-        file.write("{} {} {}\n".format(streamSizes[i], allExpSketchTimes[i], allFastExpSketchTimes[i]))
+# # Save data to file
+# with open("python-implementation.txt", "w") as file:
+#     file.write("sketch-size: {}\n".format(sketchSize))
+#     file.write("reps: {}\n".format(repeats))
+#     file.write("comparisions:\n")
+#     for i in range(len(streamSizes)):
+#         file.write("{} {} {}\n".format(streamSizes[i], allExpSketchComparisons[i], allFastExpSketchComparisons[i]))
+#     file.write("times:\n")
+#     for i in range(len(streamSizes)):
+#         file.write("{} {} {}\n".format(streamSizes[i], allExpSketchTimes[i], allFastExpSketchTimes[i]))
