@@ -38,7 +38,7 @@ double hashFun(uint32_t i, uint16_t k, uint16_t seed) {
     converter.in.second = k;
     converter.in.third = seed;
 
-    return static_cast<uint64_t>(converter.out * 16123689073) / pow(2, 64);
+    return static_cast<double>(std::hash<std::string>{}(std::to_string(converter.out))) / pow(2, 64);
 }
 
 
@@ -147,6 +147,90 @@ size_t createFastExpSketch(Sketch& sketch, const std::vector<StreamElement>& inp
     return comparisons;
 }
 
+
+double estimateCardinality(const Sketch& sketch) {
+    double sketchSum{0.0};
+    for(uint16_t i = 0; i < SKETCH_SIZE; i++) {
+        sketchSum += sketch.values[i];
+    }
+
+    return static_cast<double>(SKETCH_SIZE - 1) / sketchSum;
+}
+
+
+double estimateCardinality(const std::vector<Sketch>& sketches, const std::vector<std::vector<ssize_t>>& dnfs) {
+    size_t disjointIntersectionsCounter{0};
+    
+    for(auto component = dnfs.begin(); component != dnfs.end(); ++component) {
+        std::vector<size_t> positiveSketcheIds{};
+        std::vector<size_t> negativeSketcheIds{};
+
+        for(auto sketch = component->begin(); sketch != component->end(); ++sketch) {
+            if((*sketch) > 0) {
+                positiveSketcheIds.emplace_back((*sketch));
+            }
+            else {
+                negativeSketcheIds.emplace_back(-(*sketch));
+            }
+        }
+
+        for(uint16_t experimentNum = 0; experimentNum < SKETCH_SIZE; experimentNum++) {
+            std::vector<double> experiment{};
+            for(auto sketch = sketches.begin(); sketch != sketches.end(); ++sketch) {
+                experiment.emplace_back(sketch->values[experimentNum]);
+            }
+
+            std::vector<double> positiveExperiments{};
+            for(auto positiveSketchId = positiveSketcheIds.begin(); positiveSketchId != positiveSketcheIds.end(); ++positiveSketchId) {
+                positiveExperiments.emplace_back(experiment[(*positiveSketchId) - 1]);
+            }
+
+            std::vector<double> negativeExperiments{};
+            for(auto negativeSketchId = negativeSketcheIds.begin(); negativeSketchId != negativeSketcheIds.end(); ++negativeSketchId) {
+                negativeExperiments.emplace_back(experiment[(*negativeSketchId) - 1]);
+            }
+            bool allPositiveAreEqual{true};
+            for(size_t i = 1; i < positiveExperiments.size(); i++) {
+                if(fabs(positiveExperiments[0] - positiveExperiments[i]) > 0.00001) {
+                    allPositiveAreEqual = false;
+                    break;
+                }
+            }
+
+            bool negativeExperimentsIsEmpty{negativeExperiments.empty()};
+            double minNegative{0};
+            
+            if(!negativeExperimentsIsEmpty) {
+                minNegative = negativeExperiments[0];
+                for(size_t i = 0; i < negativeExperiments.size(); i++) {
+                    if(negativeExperiments[i] < minNegative) {
+                        minNegative = negativeExperiments[i];
+                    }
+                }
+            }
+
+            if(allPositiveAreEqual && (negativeExperimentsIsEmpty || positiveExperiments[0] < minNegative)) {
+                disjointIntersectionsCounter++;
+            }
+        }
+    }
+
+    double sumOfMinimums{0.0};
+    for(uint16_t i = 0; i < SKETCH_SIZE; i++) {
+        double minVal{sketches[0].values[i]};
+        for(size_t j = 1; j < sketches.size(); j++) {
+            if(sketches[j].values[i] < minVal) {
+                minVal = sketches[j].values[i];
+            }
+        }
+
+        sumOfMinimums += minVal;
+    }
+
+    return static_cast<double>(disjointIntersectionsCounter) / static_cast<double>(SKETCH_SIZE) * static_cast<double>(SKETCH_SIZE - 1) / sumOfMinimums;
+}
+
+
 std::vector<StreamElement> generateStream(uint32_t streamSize) {
     std::vector<StreamElement> stream{};
     std::mt19937 gen{std::random_device{}()};
@@ -162,46 +246,60 @@ std::vector<StreamElement> generateStream(uint32_t streamSize) {
 
 int main() {
     // Test - estimate cardinality
-    const uint32_t samplesNumber{4096};
-    const uint32_t minSampleId{1};
-    const uint32_t maxSampleId{100000};
+    const uint32_t samplesNumber{8192};
 
-    std::mt19937 gen{std::random_device{}()};
-    std::uniform_int_distribution<uint32_t> dist{minSampleId, maxSampleId};
+    std::vector<StreamElement> numbers2k{};
+    std::vector<StreamElement> numbers3k{};
+    std::vector<StreamElement> numbers6k{};
+    std::vector<StreamElement> numbers2kOr3k{};
+    std::vector<StreamElement> numbers2kAnd3k{};
+    std::vector<StreamElement> numbers3kNot6k{};
 
-    std::set<uint32_t> streamIds{};
-    while(streamIds.size() < samplesNumber) {
-        streamIds.insert(dist(gen));
-    }
-
-    std::vector<StreamElement> stream1{};
-    std::vector<StreamElement> stream2{};
-    for(auto iter = streamIds.begin(); iter != streamIds.end(); ++iter) {
-        if(*iter % 3 == 0) {
-            stream1.emplace_back(StreamElement{*iter, 1});
+    for(uint32_t num = 1; num <= samplesNumber; num++) {
+        if(num % 2 == 0) {
+            numbers2k.emplace_back(StreamElement{num, 1});
         }
-        else {
-            stream2.emplace_back(StreamElement{*iter, 1});
+
+        if(num % 3 == 0) {
+            numbers3k.emplace_back(StreamElement{num, 1});
+        }
+
+        if(num % 6 == 0) {
+            numbers6k.emplace_back(StreamElement{num, 1});
+        }
+
+        if((num % 2 == 0) || (num % 3 == 0)) {
+            numbers2kOr3k.emplace_back(StreamElement{num, 1});
+        }
+
+        if((num % 2 == 0) && (num % 3 == 0)) {
+            numbers2kAnd3k.emplace_back(StreamElement{num, 1});
+        }
+
+        if((num % 3 == 0) && (num % 6 != 0)) {
+            numbers3kNot6k.emplace_back(StreamElement{num, 1});
         }
     }
-    
-    Sketch sketch1;
-    createFastExpSketch(sketch1, stream1, SEED);
-    Sketch sketch2;
-    createFastExpSketch(sketch2, stream2, SEED);
 
-    double sketch1Sum{0.0};
-    double sketch2Sum{0.0};
-    for(uint16_t i = 0; i < SKETCH_SIZE; i++) {
-        sketch1Sum += sketch1.values[i];
-        sketch2Sum += sketch2.values[i];
-    }
+    Sketch sketch2k{};
+    createFastExpSketch(sketch2k, numbers2k, SEED);
+    Sketch sketch3k{};
+    createFastExpSketch(sketch3k, numbers3k, SEED);
+    Sketch sketch6k{};
+    createFastExpSketch(sketch6k, numbers6k, SEED);
+    Sketch sketch2kOr3k{};
+    createFastExpSketch(sketch2kOr3k, numbers2kOr3k, SEED);
+    Sketch sketch2kAnd3k{};
+    createFastExpSketch(sketch2kAnd3k, numbers2kAnd3k, SEED);
+    Sketch sketch3kNot6k{};
+    createFastExpSketch(sketch3kNot6k, numbers3kNot6k, SEED);
 
-    double cardinality1{static_cast<double>(SKETCH_SIZE - 1) / sketch1Sum};
-    double cardinality2{static_cast<double>(SKETCH_SIZE - 1) / sketch2Sum};
-
-    std::cout << "cardinality of first group: " << stream1.size() << " " << cardinality1 << std::endl;
-    std::cout << "cardinality of second group: " << stream2.size() << " " << cardinality2 << std::endl;
+    std::cout << "cardinality of 2k numbers: " << numbers2k.size() << " " << estimateCardinality(sketch2k) << std::endl;
+    std::cout << "cardinality of 3k numbers: " << numbers3k.size() << " " << estimateCardinality(sketch3k) << std::endl;
+    std::cout << "cardinality of 6k numbers: " << numbers6k.size() << " " << estimateCardinality(sketch6k) << std::endl;
+    std::cout << "cardinality of 2kOr3k numbers: " << numbers2kOr3k.size() << " " << estimateCardinality({sketch2k, sketch3k}, {{1, -2}, {-1, 2}}) << std::endl;
+    std::cout << "cardinality of 2kAnd3k numbers: " << numbers2kAnd3k.size() << " " << estimateCardinality({sketch2k, sketch3k}, {{1, 2}}) << std::endl;
+    std::cout << "cardinality of 3kNot6k numbers: " << numbers3kNot6k.size() << " " << estimateCardinality({sketch3k, sketch6k}, {{1, -2}}) << std::endl;
 
 
     // Chart data generation

@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-def drawSingleChart(streamSize, sketchData, title, xLabel, yLabel, outputFileName):
+def drawSingleChart(streamSizes, sketchData, title, xLabel, yLabel, outputFileName):
     plt.scatter(x=streamSizes, y=sketchData)
     plt.title(title)
     plt.xlabel(xLabel)

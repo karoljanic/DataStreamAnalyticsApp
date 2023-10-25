@@ -3,12 +3,13 @@ import numpy as np
 import random
 import time
 
+# PYTHONHASHSEED -> seed for hash generation
 bitsInHash = sys.hash_info[0]
 
 def hashFun(i, k, seed):
     hashStr = f"{bin(int(i))[2:]:0>32}{bin(int(k))[2:]:0>32}{bin(int(seed))[2:]:0>32}"
     
-    return abs(hash(hashStr)) / 2 ** bitsInHash
+    return abs(hash(hashStr)) / 2 ** (bitsInHash - 1)
 
 
 def createExpSketch(inputStream, sketchSize, seed):
@@ -96,6 +97,31 @@ def updateFastExpSketch(sketch, inputStream, seed):
     return sketch, comparisons
 
 
+def estimateSingleSketchCardinality(sketch):
+    return (len(sketch) - 1) / sum(sketch)
+
+
+def estimateCardinality(sketches, dnfs):
+    sketchSize = len(sketches[0])
+    disjointIntersectionsCounter = 0
+
+    for conjuction in dnfs:
+        positiveSketches = [sketchId for sketchId in conjuction if sketchId > 0]
+        negativeSketches = [-sketchId for sketchId in conjuction if sketchId < 0]
+
+        for experimentNum in range(1, sketchSize + 1):
+            experiment = [row[experimentNum - 1] for row in sketches]
+            positiveExperiments = [experiment[sketch - 1] for sketch in positiveSketches]
+            negativeExperiments = [experiment[sketch - 1] for sketch in negativeSketches]
+
+            if(all(x == positiveExperiments[0] for x in positiveExperiments) and (len(negativeExperiments) == 0 or positiveExperiments[0] < min(negativeExperiments))):
+                disjointIntersectionsCounter += 1
+
+    U = [min(x) for x in zip(*sketches)]
+
+    return disjointIntersectionsCounter / sketchSize * (sketchSize - 1) / sum(U)
+
+
 def generateStream(streamSize):
     return np.array([[i, random.uniform(0.0, 1.0)] for i in range(1, streamSize + 1)], dtype=float)
 
@@ -103,19 +129,29 @@ def generateStream(streamSize):
 # Test - estimate cardinality
 sketchSize = 1024
 seed = 7
-samplesNumber = 4096
-minSampleId = 1
-maxSampleId = 100000
+samplesNumber = 8192
 
-stream = np.array([[id, 1] for id in random.sample(range(minSampleId, maxSampleId), samplesNumber)])
-stream1 = np.array([x for x in stream if x[0] % 3 == 0])
-stream2 = np.array([x for x in stream if x[0] % 3 != 0])
+numbers = np.array([[id, 1] for id in range(1, samplesNumber + 1)])
+numbers2k = np.array([num for num in numbers if num[0] % 2 == 0])
+numbers3k = np.array([num for num in numbers if num[0] % 3 == 0])
+numbers6k = np.array([num for num in numbers if num[0] % 6 == 0])
+numbers2kOr3k = np.array([num for num in numbers if (num[0] % 2 == 0 or num[0] % 3 == 0)])
+numbers2kAnd3k = np.array([num for num in numbers if (num[0] % 2 == 0 and num[0] % 3 == 0)])
+numbers3kNot6k = np.array([num for num in numbers if (num[0] % 3 == 0 and num[0] % 6 != 0)])
 
-sketch1, _ = createFastExpSketch(stream1, sketchSize, seed)
-sketch2, _ = createFastExpSketch(stream2, sketchSize, seed)
+sketch2k, _ = createFastExpSketch(numbers2k, sketchSize, seed)
+sketch3k, _ = createFastExpSketch(numbers3k, sketchSize, seed)
+sketch6k, _ = createFastExpSketch(numbers6k, sketchSize, seed)
+sketch2kOr3k, _ = createFastExpSketch(numbers2kOr3k, sketchSize, seed)
+sketch2kAnd3k, _ = createFastExpSketch(numbers2kAnd3k, sketchSize, seed)
+sketch3kNot6k, _ = createFastExpSketch(numbers3kNot6k, sketchSize, seed)
 
-print("cardinality of first group:", len(stream1), (len(sketch1) - 1) / sum(sketch1))
-print("cardinality of second group:", len(stream2), (len(sketch2) - 1) / sum(sketch2))
+print("cardinality of 2k numbers:", len(numbers2k), estimateSingleSketchCardinality(sketch2k))
+print("cardinality of 3k numbers:", len(numbers3k), estimateSingleSketchCardinality(sketch3k))
+print("cardinality of 6k numbers:", len(numbers6k), estimateSingleSketchCardinality(sketch6k))
+print("cardinality of 2k or 3k numbers:", len(numbers2kOr3k), estimateCardinality([sketch2k, sketch3k], [[1, -2], [-1, 2]]))
+print("cardinality of 2k and 6k numbers:", len(numbers2kAnd3k), estimateCardinality([sketch2k, sketch3k], [[1, 2]]))
+print("cardinality of 3k not 6k", len(numbers3kNot6k), estimateCardinality([sketch3k, sketch6k], [[1, -2]]))
 
 
 # Chart data generation
