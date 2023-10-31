@@ -7,12 +7,20 @@ import { AppComponent } from './app.component';
 
 import { ShowDataComponent } from './show-data/show-data.component';
 import { PagenotfoundComponent } from './pagenotfound/pagenotfound.component';
+import { ProfileComponent } from './profile/profile.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { LoginComponent } from './login/login.component';
+import { DataAnalyzeComponent } from './data-analyze/data-analyze.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ShowDataComponent,
-    PagenotfoundComponent
+    PagenotfoundComponent,
+    ProfileComponent,
+    DashboardComponent,
+    LoginComponent,
+    DataAnalyzeComponent
   ],
   imports: [
     HttpModule,
