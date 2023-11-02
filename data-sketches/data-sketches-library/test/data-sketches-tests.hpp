@@ -4,4 +4,6 @@
 #include <catch2/catch.hpp>
 #include <data-sketches.hpp>
 
+#include <iostream>
+
 #endif  // DATA_SKETCHES_TESTS_HPP
