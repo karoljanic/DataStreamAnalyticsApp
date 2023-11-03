@@ -76,7 +76,7 @@ namespace sketch {
                  maxValue == std::numeric_limits<SketchValueType>::infinity()) {
           updateMax = false;
         }
-        else if (fabs(sketch[randomPosition] - maxValue) < 0.00001) {
+        else if (fabs(sketch[randomPosition] - maxValue) < SKETCH_VALUE_COMPARISON_EPSILON) {
           updateMax = true;
         }
         sketch[randomPosition] = std::min(sketch[randomPosition], sum);
@@ -94,13 +94,91 @@ namespace sketch {
     }
   }
 
-  SketchValueType estimateCardinality(SketchValueType* const sketch, SketchSizeType sketchSize) {
+  SketchValueType estimateSingleCardinality(SketchValueType* const sketch, SketchSizeType sketchSize) {
     SketchValueType sketchSum{0.0};
     for (SketchSizeType valueIndex = 0; valueIndex < sketchSize; valueIndex++) {
       sketchSum += sketch[valueIndex];
     }
 
     return static_cast<SketchValueType>(sketchSize - 1) / sketchSum;
+  }
+
+  SketchValueType estimateDnfCardinality(SketchValueType** const sketches, std::size_t sketchesNumber, SketchSizeType sketchSize,
+                                         ssize_t** disjunctiveNormalForms, std::size_t disjunctiveNormalFormsNumber) {
+    if (sketchesNumber < 1) {
+      return 0;
+    }
+
+    std::size_t disjointIntersectionsCounter{0};
+    for (size_t normalFormIndex = 0; normalFormIndex < disjunctiveNormalFormsNumber; normalFormIndex++) {
+      std::vector<std::size_t> positiveSketcheIds{};
+      std::vector<std::size_t> negativeSketcheIds{};
+
+      for (std::size_t sketchIndex = 0; sketchIndex < sketchesNumber; sketchIndex++) {
+        if (disjunctiveNormalForms[normalFormIndex][sketchIndex] == 1) {
+          positiveSketcheIds.emplace_back(sketchIndex);
+        }
+        else if (disjunctiveNormalForms[normalFormIndex][sketchIndex] == -1) {
+          negativeSketcheIds.emplace_back(sketchIndex);
+        }
+      }
+
+      for (SketchSizeType experimentNum = 0; experimentNum < sketchSize; experimentNum++) {
+        std::vector<SketchValueType> experiment{};
+        for (std::size_t sketchIndex = 0; sketchIndex < sketchesNumber; sketchIndex++) {
+          experiment.emplace_back(sketches[sketchIndex][experimentNum]);
+        }
+
+        std::vector<SketchValueType> positiveExperiments{};
+        for (std::size_t posSketchIdPos = 0; posSketchIdPos < positiveSketcheIds.size(); posSketchIdPos++) {
+          positiveExperiments.emplace_back(experiment[positiveSketcheIds[posSketchIdPos]]);
+        }
+
+        std::vector<SketchValueType> negativeExperiments{};
+        for (std::size_t negSketchIdPos = 0; negSketchIdPos < negativeSketcheIds.size(); negSketchIdPos++) {
+          negativeExperiments.emplace_back(experiment[negativeSketcheIds[negSketchIdPos]]);
+        }
+
+        bool allPositiveAreEqual{true};
+        if (!positiveExperiments.empty()) {
+          for (std::size_t i = 1; i < positiveExperiments.size(); i++) {
+            if (fabs(positiveExperiments[0] - positiveExperiments[i]) > SKETCH_VALUE_COMPARISON_EPSILON) {
+              allPositiveAreEqual = false;
+              break;
+            }
+          }
+        }
+
+        SketchValueType minNegative{std::numeric_limits<SketchValueType>::infinity()};
+        for (std::size_t i = 0; i < negativeExperiments.size(); i++) {
+          if (negativeExperiments[i] < minNegative) {
+            minNegative = negativeExperiments[i];
+          }
+        }
+
+        if (positiveExperiments.empty()) {}
+        else {
+          if (allPositiveAreEqual && positiveExperiments[0] < minNegative) {
+            disjointIntersectionsCounter++;
+          }
+        }
+      }
+    }
+
+    SketchValueType sumOfMinimums{0};
+    for (SketchSizeType valueIndex = 0; valueIndex < sketchSize; valueIndex++) {
+      double minVal{sketches[0][valueIndex]};
+      for (std::size_t sketchIndex = 1; sketchIndex < sketchesNumber; sketchIndex++) {
+        if (sketches[sketchIndex][valueIndex] < minVal) {
+          minVal = sketches[sketchIndex][valueIndex];
+        }
+      }
+
+      sumOfMinimums += minVal;
+    }
+
+    return static_cast<double>(disjointIntersectionsCounter) / static_cast<double>(sketchSize) *
+           static_cast<double>(sketchSize - 1) / sumOfMinimums;
   }
   }
 }  // namespace sketch

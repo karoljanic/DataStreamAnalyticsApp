@@ -1,6 +1,7 @@
 #ifndef DATA_SKETCHES_HPP
 #define DATA_SKETCHES_HPP
 
+#include <sys/types.h>
 #include <cinttypes>
 
 namespace sketch {
@@ -22,7 +23,9 @@ namespace sketch {
   void initializeSketch(SketchValueType* const sketch, SketchSizeType sketchSize);
   void updateSketch(SketchValueType* const sketch, SketchSizeType sketchSize, const Sample* const samples,
                     std::size_t samplesNumber, SeedType seed);
-  SketchValueType estimateCardinality(SketchValueType* const sketch, SketchSizeType sketchSize);
+  SketchValueType estimateSingleCardinality(SketchValueType* const sketch, SketchSizeType sketchSize);
+  SketchValueType estimateDnfCardinality(SketchValueType** const sketches, std::size_t sketchesNumber, SketchSizeType sketchSize,
+                                         ssize_t** disjunctiveNormalForms, std::size_t disjunctiveNormalFormsNumber);
   }
 
 }  // namespace sketch

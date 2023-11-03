@@ -27,7 +27,7 @@ TEST_CASE("Sketch updating - simple elements counting", "[data-sketches]") {
   sketch::initializeSketch(sketch, SKETCH_SIZE);
   sketch::updateSketch(sketch, SKETCH_SIZE, dataStream, DATA_STREAM_SIZE, SEED);
 
-  double cardinality = sketch::estimateCardinality(sketch, SKETCH_SIZE);
+  double cardinality = sketch::estimateSingleCardinality(sketch, SKETCH_SIZE);
 
   REQUIRE(fabs(static_cast<double>(DATA_STREAM_SIZE) - cardinality) <=
           MAX_ESTIMATION_ERROR_PERCENTAGE * static_cast<double>(DATA_STREAM_SIZE));
