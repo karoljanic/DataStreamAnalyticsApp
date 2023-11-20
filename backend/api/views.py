@@ -1,6 +1,6 @@
 
-from api.models import DataSketch, DataStream, Tag
-from api.serializers import DataSketchSerializer, DataStreamSerializer, TagSerializer
+from api.models import DataSketch, DataStream, Tag, Type
+from api.serializers import DataSketchSerializer, DataStreamSerializer, TagSerializer, TypeSerializer
 from rest_framework import generics
 
 
@@ -17,18 +17,13 @@ class DataSketchDetail(generics.RetrieveUpdateDestroyAPIView):
 class TagList(generics.ListCreateAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    
 
-
-class TagDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Tag.objects.all()
-    serializer_class = TagSerializer
+class TypeList(generics.ListCreateAPIView):
+    queryset = Type.objects.all()
+    serializer_class = TypeSerializer
     
 
 class DataStreamList(generics.ListCreateAPIView):
-    queryset = DataStream.objects.all()
-    serializer_class = DataStreamSerializer
-
-
-class DataStreamDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = DataStream.objects.all()
     serializer_class = DataStreamSerializer
