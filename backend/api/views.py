@@ -1,14 +1,34 @@
-from django.shortcuts import render, HttpResponseRedirect
-from django.http import HttpResponse, JsonResponse
 
-from api.models import ExampleModel
-from api.serializers import ExampleModelSerializer
+from api.models import DataSketch, DataStream, Tag
+from api.serializers import DataSketchSerializer, DataStreamSerializer, TagSerializer
+from rest_framework import generics
 
-from django.views.decorators.csrf import csrf_exempt
 
-@csrf_exempt
-def get_data(request):
-	data = ExampleModel.objects.all()
-	if request.method == 'GET':
-		serializer = ExampleModelSerializer(data, many=True)
-		return JsonResponse(serializer.data, safe=False)
+class DataSketchList(generics.ListCreateAPIView):
+    queryset = DataSketch.objects.all()
+    serializer_class = DataSketchSerializer
+
+
+class DataSketchDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = DataSketch.objects.all()
+    serializer_class = DataSketchSerializer
+    
+
+class TagList(generics.ListCreateAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+
+
+class TagDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    
+
+class DataStreamList(generics.ListCreateAPIView):
+    queryset = DataStream.objects.all()
+    serializer_class = DataStreamSerializer
+
+
+class DataStreamDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = DataStream.objects.all()
+    serializer_class = DataStreamSerializer
