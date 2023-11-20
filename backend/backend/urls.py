@@ -23,9 +23,3 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
 ]
-
-if settings.DEBUG:
-    urlpatterns += [
-        path('', TemplateView.as_view(template_name="home.html"), name="home"),
-        path("<path:path>", TemplateView.as_view(template_name="home.html"), name="home"),
-    ]
