@@ -1,5 +1,5 @@
 from numpy import byte
-from python_wrapper import *
+from datasketches import *
 
 SAMPLES_NUMBER = 8192
 
