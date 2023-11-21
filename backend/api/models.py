@@ -1,4 +1,5 @@
 from django.db import models
+from datasketches import DataSketch as DS
 
 class DataStream(models.Model):
 	name = models.CharField(max_length=255)
@@ -20,6 +21,11 @@ class DataSketch(models.Model):
 	typ = models.ForeignKey(Type, on_delete=models.CASCADE)
 
 	sketch = models.BinaryField()
+
+	def value(self):
+		ds = DS()
+		ds.from_bytes(self.sketch)
+		return ds.read_value()
 
 	class Meta:
 		constraints = [

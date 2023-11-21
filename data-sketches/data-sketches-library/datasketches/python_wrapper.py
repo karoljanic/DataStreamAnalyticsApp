@@ -1,7 +1,8 @@
 import ctypes
+import pathlib
 
-PATH_TO_LIBRARY = "../out/build/unixlike-clang-release/lib"
 LIBRARY_NAME = "libdata-sketches-library.so"
+PATH_TO_LIBRARY = pathlib.Path(__file__).parent.parent.joinpath("out/build/unixlike-clang-release/lib/" + LIBRARY_NAME)
 
 SKETCH_SIZE = 512
 SEED = 1024
@@ -17,7 +18,7 @@ class Sample(ctypes.Structure):
         return f"[id: {self.identifier}  val: {self.value}]"
 
 # include library
-data_sketches_library = ctypes.CDLL(PATH_TO_LIBRARY + "/" + LIBRARY_NAME)
+data_sketches_library = ctypes.CDLL(PATH_TO_LIBRARY)
 
 # define args and returns of library functions
 data_sketches_library.initializeSketch.argtypes = ctypes.POINTER(ctypes.c_double), ctypes.c_uint16

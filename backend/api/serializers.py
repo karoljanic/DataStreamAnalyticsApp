@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from api.models import DataStream, DataSketch, Tag, Type
 
+import datasketches
+
 class DataStreamSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataStream
@@ -16,7 +18,10 @@ class TypeSerializer(serializers.ModelSerializer):
         model = Type
         fields = ['id', 'stream', 'name']
 
-class DataSketchSerializer(serializers.ModelSerializer):
+class DataSketchSerializer(serializers.ModelSerializer):        
+    value = serializers.ReadOnlyField()
+
     class Meta:
         model = DataSketch
-        fields = ['id', 'day', 'tag', 'typ', 'sketch']
+        fields = ['id', 'day', 'tag', 'typ', 'value']
+
