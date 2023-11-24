@@ -4,8 +4,8 @@
 
 @include mat.core();
 
-$subdued-light-primary: mat.define-palette(mat.$deep-purple-palette);
-$subdued-light-accent: mat.define-palette(mat.$red-palette);
+$subdued-light-primary: mat.define-palette($subdued-color3);
+$subdued-light-accent: mat.define-palette($subdued-color4);
 $subdued-light-warn: mat.define-palette(mat.$teal-palette);
 
 $subdued-light-theme: mat.define-light-theme((color:(

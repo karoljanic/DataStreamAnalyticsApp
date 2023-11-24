@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { StyleManagerService, ThemeStyle } from '../services/stylemanager.service';
 import { LocalStorageService } from '../services/localstorage.service';
-import { Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-profile',
@@ -18,7 +17,7 @@ export class ProfileComponent {
 
   constructor(private styleService: StyleManagerService,
               private localStorage: LocalStorageService) {
-                
+
     var currentTheme = localStorage.getValue(LocalStorageService.themeKey);
     if(currentTheme === null) {
       currentTheme = ThemeStyle.Default;

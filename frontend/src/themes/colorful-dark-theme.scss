@@ -4,8 +4,8 @@
 
 @include mat.core();
 
-$colorful-dark-primary: mat.define-palette(mat.$blue-gray-palette);
-$colorful-dark-accent: mat.define-palette(mat.$red-palette);
+$colorful-dark-primary: mat.define-palette($colorful-color5);
+$colorful-dark-accent: mat.define-palette($colorful-color2);
 $colorful-dark-warn: mat.define-palette(mat.$teal-palette);
 
 $colorful-dark-theme: mat.define-dark-theme((color:(
