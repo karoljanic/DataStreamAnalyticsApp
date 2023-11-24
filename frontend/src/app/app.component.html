@@ -1,2 +1,20 @@
-<app-dashboard></app-dashboard>
-<router-outlet></router-outlet>
+<mat-sidenav-container id="app-container">
+    <mat-sidenav mode="side" disableClose="true" opened id="app-sidenav">
+        <div id="app-logo-container">
+            <img id="app-logo" src="../assets/simple-logo.png" alt="Logo">
+        </div>
+        <mat-nav-list id="app-sidenav-content-list">
+            <p mat-list-item *ngFor="let menuItem of menuItems" id="app-sidenav-content-list-row" (click)="navigateToRoute(menuItem.route)">
+                <mat-icon id="app-sidenav-content-list-icon">{{ menuItem.icon }}</mat-icon>
+                <span id="app-sidenav-content-list-label">{{ menuItem.text }}</span>
+            </p>
+        </mat-nav-list>
+    </mat-sidenav>
+  
+    <mat-sidenav-content>
+        <div id="app-sidenav-content">
+            <router-outlet></router-outlet>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>
+  

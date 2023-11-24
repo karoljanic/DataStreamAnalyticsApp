@@ -1,0 +1,24 @@
+@use '@angular/material' as mat;
+
+@import 'color-palette-colorful';
+
+@include mat.core();
+
+$colorful-light-primary: mat.define-palette(mat.$deep-purple-palette);
+$colorful-light-accent: mat.define-palette(mat.$red-palette);
+$colorful-light-warn: mat.define-palette(mat.$teal-palette);
+
+$colorful-light-theme: mat.define-light-theme((color:(
+    primary: $colorful-light-primary,
+    accent: $colorful-light-accent,
+    warn: $colorful-light-warn
+)));
+
+@include mat.all-component-themes($colorful-light-theme);
+
+$app-content-background: mat.get-color-from-palette($colorful-color5, 200);
+$app-content-text: black;
+$app-nav-background: mat.get-color-from-palette($colorful-color4, 500);
+$app-nav-text: white;
+
+@import 'custom-themes';

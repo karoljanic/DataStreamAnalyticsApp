@@ -1,1 +1,6 @@
-<p>profile works!</p>
+<div id="theme-selection">
+    <h3>Select theme:</h3>
+    <mat-radio-group id="theme-selection-radios">
+        <mat-radio-button *ngFor="let theme of themes" id="theme-selection-option" [value]="theme.enum" [checked]="theme.checked"(click)="changeThemeStyle(theme.enum)">{{theme.name}}</mat-radio-button>
+    </mat-radio-group>
+</div>
