@@ -1,24 +1,21 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { LoginComponent } from './login/login.component';
+import { ProfileComponent } from './profile/profile.component';
+import { DataAnalyzeComponent } from './data-analyze/data-analyze.component';
 
-import { ShowDataComponent } from './show-data/show-data.component';
-import { PagenotfoundComponent } from './pagenotfound/pagenotfound.component';
-
-const appRoutes: Routes = [
-    {
-        path:"",
-        component: ShowDataComponent,
-    },
-    {
-        path:"**",
-        component: PagenotfoundComponent,
-    }
-]
+const routes: Routes = [
+    { path: '', component: DashboardComponent },
+    { path: 'login', component: LoginComponent },
+    { path: 'profile', component: ProfileComponent },
+    { path: 'analyzer', component: DataAnalyzeComponent },
+  ];
 
 @NgModule({
     imports: [
         RouterModule.forRoot(
-            appRoutes
+            routes
         )
     ],
     exports: [
