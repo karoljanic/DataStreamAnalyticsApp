@@ -1,0 +1,24 @@
+@use '@angular/material' as mat;
+
+@import 'color-palette-subdued';
+
+@include mat.core();
+
+$subdued-light-primary: mat.define-palette($subdued-color3);
+$subdued-light-accent: mat.define-palette($subdued-color4);
+$subdued-light-warn: mat.define-palette(mat.$teal-palette);
+
+$subdued-light-theme: mat.define-light-theme((color:(
+    primary: $subdued-light-primary,
+    accent: $subdued-light-accent,
+    warn: $subdued-light-warn
+)));
+
+@include mat.all-component-themes($subdued-light-theme);
+
+$app-content-background: mat.get-color-from-palette($subdued-color2, 100);
+$app-content-text: black;
+$app-nav-background: mat.get-color-from-palette($subdued-color1, 400);
+$app-nav-text: white;
+
+@import 'custom-themes';
