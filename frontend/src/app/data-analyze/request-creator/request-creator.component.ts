@@ -16,13 +16,13 @@ enum RequestNodeType {
 
 type RequestNodeInfo = {
   type: RequestNodeType,
-  parentId: number | null,
-  leftChildId: number | null,
-  rightChildId: number | null,
-  containerId: number | null,
-  leftEmptyArgumentId: number | null,
-  rightEmptyArgumentId: number | null,
-  labelId: number | null,
+  parent: RequestNode | null,
+  leftChild: RequestNode | null,
+  rightChild: RequestNode | null,
+  container: Rect | null,
+  leftEmptyArgument: Rect | null,
+  rightEmptyArgument: Rect | null,
+  label: Text | null,
 };
 
 type RequestNode = Rect | Group;
@@ -117,20 +117,20 @@ export class RequestCreatorComponent implements AfterViewInit {
 
     const nodeInfo: RequestNodeInfo = {
       type: RequestNodeType.OPERAND,
-      parentId: null,
-      leftChildId: null,
-      rightChildId: null,
-      containerId: operandOval._id,
-      leftEmptyArgumentId: null,
-      rightEmptyArgumentId: null,
-      labelId: operandLabel._id
+      parent: null,
+      leftChild: null,
+      rightChild: null,
+      container: operandOval,
+      leftEmptyArgument: null,
+      rightEmptyArgument: null,
+      label: operandLabel
     };
     operandGroup.setAttr('metadata', nodeInfo);
 
     return operandGroup;
   }
 
-  private createArgument(color: string): RequestNode {
+  private createArgument(color: string): Rect {
     const argumentLabel = this.createText('   ', false);
 
     const operandLabelWidth = argumentLabel.width();
@@ -149,13 +149,13 @@ export class RequestCreatorComponent implements AfterViewInit {
 
     const nodeInfo: RequestNodeInfo = {
       type: RequestNodeType.ARGUMENT,
-      parentId: null,
-      leftChildId: null,
-      rightChildId: null,
-      containerId: operandOval._id,
-      leftEmptyArgumentId: null,
-      rightEmptyArgumentId: null,
-      labelId: argumentLabel._id
+      parent: null,
+      leftChild: null,
+      rightChild: null,
+      container: operandOval,
+      leftEmptyArgument: null,
+      rightEmptyArgument: null,
+      label: argumentLabel
     };
     operandOval.setAttr('metadata', nodeInfo);
 
@@ -184,24 +184,25 @@ export class RequestCreatorComponent implements AfterViewInit {
     (leftArgument.getAttr('metadata') as RequestNodeInfo).type = RequestNodeType.LEFT_ARGUMENT;
     (rightArgument.getAttr('metadata') as RequestNodeInfo).type = RequestNodeType.RIGHT_ARGUMENT;
 
-    (leftArgument.getAttr('metadata') as RequestNodeInfo).parentId = operatorGroup._id;
-    (rightArgument.getAttr('metadata') as RequestNodeInfo).parentId = operatorGroup._id;
+    (leftArgument.getAttr('metadata') as RequestNodeInfo).parent = operatorGroup;
+    (rightArgument.getAttr('metadata') as RequestNodeInfo).parent = operatorGroup;
 
     this.backLayer!.add(operatorGroup);
 
     operatorGroup.on('dragstart', this.handleDragstart.bind(this));
     operatorGroup.on('dragend', this.handleDragend.bind(this));
     operatorGroup.on('dragmove', this.handleDragmove.bind(this));
+    operatorGroup.on('dblclick', () => { console.log(this.convertToJson(operatorGroup)); });
 
     const nodeInfo: RequestNodeInfo = {
       type: RequestNodeType.OPERATOR,
-      parentId: null,
-      leftChildId: null,
-      rightChildId: null,
-      containerId: operatorOval._id,
-      leftEmptyArgumentId: leftArgument._id,
-      rightEmptyArgumentId: rightArgument._id,
-      labelId: operatorLabel._id
+      parent: null,
+      leftChild: null,
+      rightChild: null,
+      container: operatorOval,
+      leftEmptyArgument: leftArgument,
+      rightEmptyArgument: rightArgument,
+      label: operatorLabel
     };
     operatorGroup.setAttr('metadata', nodeInfo);
 
@@ -213,10 +214,8 @@ export class RequestCreatorComponent implements AfterViewInit {
   private redrawOperatorNode(node: Group): void {
     const nodeInfo = node.getAttr('metadata') as RequestNodeInfo;
 
-    const leftArgument: RequestNode = nodeInfo.leftChildId !== null ? this.findObjectById(node.children, nodeInfo.leftChildId)! : this.findObjectById(node.children, nodeInfo.leftEmptyArgumentId!)!;
-    const rightArgument: RequestNode = nodeInfo.rightChildId !== null ? this.findObjectById(node.children, nodeInfo.rightChildId)! : this.findObjectById(node.children, nodeInfo.rightEmptyArgumentId!)!;
-    const operatorLabel: Text = this.findObjectById(node.children, nodeInfo.labelId!);
-    const operatorContainer: Rect = this.findObjectById(node.children, nodeInfo.containerId!);
+    const leftArgument: RequestNode = nodeInfo.leftChild !== null ? nodeInfo.leftChild : nodeInfo.leftEmptyArgument!;
+    const rightArgument: RequestNode = nodeInfo.rightChild !== null ? nodeInfo.rightChild : nodeInfo.rightEmptyArgument!;
 
     const leftArgumentWidth = leftArgument.getClientRect().width;
     const leftArgumentHeight = leftArgument.getClientRect().height;
@@ -224,18 +223,18 @@ export class RequestCreatorComponent implements AfterViewInit {
     const rightArgumentWidth = rightArgument.getClientRect().width;
     const rightArgumentHeight = rightArgument.getClientRect().height;
 
-    const operatorLabelWidth = operatorLabel.width();
-    const operatorLabelHeight = operatorLabel.height();
+    const operatorLabelWidth = nodeInfo.label!.width();
+    const operatorLabelHeight = nodeInfo.label!.height();
 
     const operatorOvalWidth = operatorLabelWidth + leftArgumentWidth + rightArgumentWidth + 4 * this.internalPadding;
     const operatorOvalHeight = Math.max(operatorLabelHeight, leftArgumentHeight, rightArgumentHeight) + this.internalPadding;
 
-    operatorContainer.setAttr('width', operatorOvalWidth);
-    operatorContainer.setAttr('height', operatorOvalHeight);
-    operatorContainer.setAttr('cornerRadius', operatorOvalHeight / 2);
+    nodeInfo.container!.setAttr('width', operatorOvalWidth);
+    nodeInfo.container!.setAttr('height', operatorOvalHeight);
+    nodeInfo.container!.setAttr('cornerRadius', operatorOvalHeight / 2);
 
-    operatorLabel.setAttr('offsetX', -(2 * this.internalPadding + leftArgumentWidth));
-    operatorLabel.setAttr('offsetY', -(operatorOvalHeight - operatorLabelHeight) / 2);
+    nodeInfo.label!.setAttr('offsetX', -(2 * this.internalPadding + leftArgumentWidth));
+    nodeInfo.label!.setAttr('offsetY', -(operatorOvalHeight - operatorLabelHeight) / 2);
 
     leftArgument.setAttr('x', 0);
     leftArgument.setAttr('y', 0);
@@ -245,7 +244,12 @@ export class RequestCreatorComponent implements AfterViewInit {
     rightArgument.setAttr('x', 0);
     rightArgument.setAttr('y', 0);
     rightArgument.setAttr('offsetX', -(operatorOvalWidth - this.internalPadding - rightArgumentWidth));
-    rightArgument.setAttr('offsetY', -(operatorOvalHeight - leftArgumentHeight) / 2);
+    rightArgument.setAttr('offsetY', -(operatorOvalHeight - rightArgumentHeight) / 2);
+
+    const nodeParent = (node.getAttr('metadata') as RequestNodeInfo).parent;
+    if (nodeParent !== null) {
+      this.redrawOperatorNode(nodeParent as Group);
+    }
   }
 
   private createOval(width: number, height: number, fillColor: string, draggable: boolean): Rect {
@@ -294,6 +298,11 @@ export class RequestCreatorComponent implements AfterViewInit {
       if (shape) {
         this.currentDragTarget.fire('drop', { evt: e.evt }, true);
       }
+      else {
+        setTimeout(() => {
+          this.detachChild(this.currentDragStart);
+        }, 50); // this delay necessary, because drageventhandlers are async
+      }
       this.currentDragTarget = undefined;
 
       e.target.moveTo(this.backLayer);
@@ -310,7 +319,10 @@ export class RequestCreatorComponent implements AfterViewInit {
 
   private handleDrop(e: KonvaEventObject<DragEvent>): void {
     (e.target as any).fill(this.tertiaryColor);
-    setTimeout(() => { this.attachChild(e.target as RequestNode, this.currentDragStart); }, 50); // this delay necessary, because drageventhandlers are async
+    setTimeout(() => {
+      this.detachChild(this.currentDragStart);
+      this.attachChild(e.target as RequestNode, this.currentDragStart);
+    }, 50); // this delay necessary, because drageventhandlers are async
   }
 
   private handleDragmove(evt: KonvaEventObject<any>): void {
@@ -339,60 +351,54 @@ export class RequestCreatorComponent implements AfterViewInit {
   }
 
   private attachChild(emptyArgument: RequestNode, childToAttach: Group): void {
-    console.log("ATTACH CHILD");
-
     const emptyArgumentInfo = emptyArgument.getAttr('metadata') as RequestNodeInfo;
-    const emptyArgumentParent = this.getStageObjectById(emptyArgumentInfo.parentId!) as Group;    // TODO this object can be not attatched to scene
-    const emptyArgumentParentInfo = emptyArgumentParent.getAttr('metadata') as RequestNodeInfo;
+    const emptyArgumentParentInfo = emptyArgumentInfo.parent!.getAttr('metadata') as RequestNodeInfo;
 
-    console.log(this.stage?.getChildren()[0].getChildren())
-    console.log(this.stage?.getChildren()[1].getChildren())
-
-    // childToAttach.remove();
-    // emptyArgumentParent.add(childToAttach);
-
-    childToAttach.moveTo(emptyArgumentParent)
-
-    console.log(this.stage?.getChildren()[0].getChildren())
-    console.log(this.stage?.getChildren()[1].getChildren())
+    childToAttach.moveTo(emptyArgumentInfo.parent!);
+    (childToAttach.getAttr('metadata') as RequestNodeInfo).parent = emptyArgumentInfo.parent!;
 
     if (emptyArgumentInfo.type == RequestNodeType.LEFT_ARGUMENT) {
-      this.findObjectById(emptyArgumentParent.children, emptyArgumentParentInfo.leftEmptyArgumentId!).visible(false);
-      emptyArgumentParentInfo.leftChildId = childToAttach._id;
+      emptyArgumentParentInfo.leftEmptyArgument!.visible(false);
+      emptyArgumentParentInfo.leftChild = childToAttach;
     }
     else {
-      this.findObjectById(emptyArgumentParent.children, emptyArgumentParentInfo.rightEmptyArgumentId!).visible(false);
-      emptyArgumentParentInfo.rightChildId = childToAttach._id;
+      emptyArgumentParentInfo.rightEmptyArgument!.visible(false);
+      emptyArgumentParentInfo.rightChild = childToAttach;
     }
 
-    this.redrawOperatorNode(emptyArgumentParent);
+    this.redrawOperatorNode(emptyArgumentInfo.parent! as Group);
   }
 
-  private detachChild(childToAttach: Group): void {
-    console.log("DETACH CHILD");
-  }
-
-  private findObjectById(elements: any[], id: number): any {
-    for (const element of elements) {
-      if (element._id == id) {
-        return element;
+  private detachChild(childToDetach: Group): void {
+    const childInfo = childToDetach.getAttr('metadata') as RequestNodeInfo;
+    if (childInfo.parent !== null) {
+      const childParentInfo = childInfo.parent.getAttr('metadata') as RequestNodeInfo;
+      if (childParentInfo.leftChild === childToDetach) {
+        childParentInfo.leftChild = null;
+        childParentInfo.leftEmptyArgument!.visible(true);
       }
+      else {
+        childParentInfo.rightChild = null;
+        childParentInfo.rightEmptyArgument!.visible(true);
+      }
+
+      this.redrawOperatorNode(childInfo.parent! as Group);
     }
 
-    return null;
+    childInfo.parent = null;
   }
 
-  private getStageObjectById(id: number): any {
-    const layers: Layer[] = this.stage!.children;
-    for (const layer of layers) {
-      const objects: any[] = layer.children;
-      for (const object of objects) {
-        if (object._id === id) {
-          return object;
-        }
-      }
-    }
+  private convertToJson(node: RequestNode): object {
+    const nodeInfo = node.getAttr('metadata') as RequestNodeInfo;
 
-    return null;
+    const left = nodeInfo.leftChild === null ? "NULL" : this.convertToJson(nodeInfo.leftChild);
+    const right = nodeInfo.rightChild === null ? "NULL" : this.convertToJson(nodeInfo.rightChild);
+    const value = nodeInfo.label?.text();
+
+    return {
+      left: left,
+      right: right,
+      value: value
+    };
   }
 }
