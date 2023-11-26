@@ -295,7 +295,7 @@ export class RequestCreatorComponent implements AfterViewInit {
     var pointerPosition = this.stage!.getPointerPosition();
     if (pointerPosition) {
       var shape = this.backLayer!.getIntersection(pointerPosition);
-      if (shape) {
+      if (shape && shape instanceof Rect && shape.getAttr('metadata') && [RequestNodeType.LEFT_ARGUMENT, RequestNodeType.RIGHT_ARGUMENT].includes((shape.getAttr('metadata') as RequestNodeInfo).type)) {
         this.currentDragTarget.fire('drop', { evt: e.evt }, true);
       }
       else {
