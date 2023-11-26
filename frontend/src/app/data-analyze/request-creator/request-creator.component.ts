@@ -4,7 +4,6 @@ import { Group } from 'konva/lib/Group';
 import { Layer } from 'konva/lib/Layer';
 import { Rect } from 'konva/lib/shapes/Rect';
 import { Text } from 'konva/lib/shapes/Text';
-import { IRect } from 'konva/lib/types';
 import { KonvaEventObject } from 'konva/lib/Node';
 
 enum RequestNodeType {
@@ -17,12 +16,16 @@ enum RequestNodeType {
 
 type RequestNodeInfo = {
   type: RequestNodeType,
-  leftChild: RequestNode | null
-  rightChild: RequestNode | null
-  parentId: number | null
+  parentId: number | null,
+  leftChildId: number | null,
+  rightChildId: number | null,
+  containerId: number | null,
+  leftEmptyArgumentId: number | null,
+  rightEmptyArgumentId: number | null,
+  labelId: number | null,
 };
 
-type RequestNode = Group | Rect;
+type RequestNode = Rect | Group;
 
 @Component({
   selector: 'app-request-creator',
@@ -45,8 +48,6 @@ export class RequestCreatorComponent implements AfterViewInit {
   private frontLayer: Layer | null = null;
   private currentDragStart: any = undefined;
   private currentDragTarget: any = undefined;
-
-  private nodes: RequestNode[] = [];
 
   ngAfterViewInit(): void {
     this.initializeRequestCreator(1000, 500, 'konva-container', ['teal', 'aqua', 'white', '#dcdcdc'], 'verdana', 20, 'black', 10, ['a', 'def', '123', 'xyzyx'], ['$', '&&', 'modulo']);
@@ -90,7 +91,7 @@ export class RequestCreatorComponent implements AfterViewInit {
   }
 
   private createOperand(operand: string, color: string): RequestNode {
-    const operandLabel = this.createText(operand);
+    const operandLabel = this.createText(operand, false);
 
     const operandLabelWidth = operandLabel.width();
     const operandLabelHeight = operandLabel.height();
@@ -110,19 +111,30 @@ export class RequestCreatorComponent implements AfterViewInit {
 
     this.backLayer!.add(operandGroup);
 
-    operandGroup.setAttr('metadata', { type: RequestNodeType.OPERAND, leftChild: null, rightChild: null, parentId: null });
-    this.setupDragAndDropHandlers(operandGroup);
+    operandGroup.on('dragstart', this.handleDragstart.bind(this));
+    operandGroup.on('dragend', this.handleDragend.bind(this));
+    operandGroup.on('dragmove', this.handleDragmove.bind(this));
 
-    this.nodes.push(operandGroup);
+    const nodeInfo: RequestNodeInfo = {
+      type: RequestNodeType.OPERAND,
+      parentId: null,
+      leftChildId: null,
+      rightChildId: null,
+      containerId: operandOval._id,
+      leftEmptyArgumentId: null,
+      rightEmptyArgumentId: null,
+      labelId: operandLabel._id
+    };
+    operandGroup.setAttr('metadata', nodeInfo);
 
     return operandGroup;
   }
 
   private createArgument(color: string): RequestNode {
-    const operandLabel = this.createText('   ');
+    const argumentLabel = this.createText('   ', false);
 
-    const operandLabelWidth = operandLabel.width();
-    const operandLabelHeight = operandLabel.height();
+    const operandLabelWidth = argumentLabel.width();
+    const operandLabelHeight = argumentLabel.height();
 
     const operandOvalWidth = operandLabelWidth + 2 * this.internalPadding;
     const operandOvalHeight = operandLabelHeight + this.internalPadding;
@@ -131,24 +143,28 @@ export class RequestCreatorComponent implements AfterViewInit {
 
     this.backLayer!.add(operandOval);
 
-    operandOval.setAttr('metadata', { type: RequestNodeType.ARGUMENT, leftChild: null, rightChild: null, parentId: null });
+    operandOval.on('dragenter', this.handleDragenter.bind(this));
+    operandOval.on('dragleave', this.handleDragleave.bind(this));
+    operandOval.on('drop', this.handleDrop.bind(this));
 
-    this.nodes.push(operandOval);
+    const nodeInfo: RequestNodeInfo = {
+      type: RequestNodeType.ARGUMENT,
+      parentId: null,
+      leftChildId: null,
+      rightChildId: null,
+      containerId: operandOval._id,
+      leftEmptyArgumentId: null,
+      rightEmptyArgumentId: null,
+      labelId: argumentLabel._id
+    };
+    operandOval.setAttr('metadata', nodeInfo);
 
     return operandOval;
   }
 
-  private createOperator(operator: string, leftArgument: RequestNode | undefined = undefined, rightArgument: RequestNode | undefined = undefined): RequestNode {
-    if (leftArgument === undefined) {
-      leftArgument = this.createArgument(this.tertiaryColor);
-    }
-
-    if (rightArgument === undefined) {
-      rightArgument = this.createArgument(this.tertiaryColor);
-    }
-
-    leftArgument.remove();
-    rightArgument.remove();
+  private createOperator(operator: string): RequestNode {
+    const leftArgument = this.createArgument(this.tertiaryColor);
+    const rightArgument = this.createArgument(this.tertiaryColor);
 
     leftArgument.setAttr('x', 0);
     leftArgument.setAttr('y', 0);
@@ -156,31 +172,8 @@ export class RequestCreatorComponent implements AfterViewInit {
     rightArgument.setAttr('x', 0);
     rightArgument.setAttr('y', 0);
 
-    const leftArgumentWidth = leftArgument.getClientRect().width;
-    const leftArgumentHeight = leftArgument.getClientRect().height;
-
-    const rightArgumentWidth = rightArgument.getClientRect().width;
-    const rightArgumentHeight = rightArgument.getClientRect().height;
-
-    const operatorLabel = this.createText(operator);
-
-    const operatorLabelWidth = operatorLabel.width();
-    const operatorLabelHeight = operatorLabel.height();
-
-    const operatorOvalWidth = operatorLabelWidth + leftArgumentWidth + rightArgumentWidth + 4 * this.internalPadding;
-    const operatorOvalHeight = Math.max(operatorLabelHeight, leftArgumentHeight, rightArgumentHeight) + this.internalPadding;
-
-    const operatorOval = this.createOval(operatorOvalWidth, operatorOvalHeight, this.primaryColor, false);
-
-    operatorLabel.setAttr('offsetX', -(2 * this.internalPadding + leftArgumentWidth));
-    operatorLabel.setAttr('offsetY', -(operatorOvalHeight - operatorLabelHeight) / 2);
-
-    leftArgument.setAttr('offsetX', -this.internalPadding);
-    leftArgument.setAttr('offsetY', -(operatorOvalHeight - leftArgumentHeight) / 2);
-
-    rightArgument.setAttr('offsetX', -(operatorOvalWidth - this.internalPadding - rightArgumentWidth));
-    rightArgument.setAttr('offsetY', -(operatorOvalHeight - leftArgumentHeight) / 2);
-
+    const operatorLabel = this.createText(operator, false);
+    const operatorOval = this.createOval(0, 0, this.primaryColor, false);
     const operatorGroup = this.createGroup(true);
 
     operatorGroup.add(operatorOval);
@@ -188,20 +181,71 @@ export class RequestCreatorComponent implements AfterViewInit {
     operatorGroup.add(rightArgument);
     operatorGroup.add(operatorLabel);
 
+    (leftArgument.getAttr('metadata') as RequestNodeInfo).type = RequestNodeType.LEFT_ARGUMENT;
+    (rightArgument.getAttr('metadata') as RequestNodeInfo).type = RequestNodeType.RIGHT_ARGUMENT;
+
+    (leftArgument.getAttr('metadata') as RequestNodeInfo).parentId = operatorGroup._id;
+    (rightArgument.getAttr('metadata') as RequestNodeInfo).parentId = operatorGroup._id;
+
     this.backLayer!.add(operatorGroup);
 
-    leftArgument.getAttr('metadata').type = RequestNodeType.LEFT_ARGUMENT;
-    rightArgument.getAttr('metadata').type = RequestNodeType.RIGHT_ARGUMENT;
+    operatorGroup.on('dragstart', this.handleDragstart.bind(this));
+    operatorGroup.on('dragend', this.handleDragend.bind(this));
+    operatorGroup.on('dragmove', this.handleDragmove.bind(this));
 
-    leftArgument.getAttr('metadata').parentId = operatorGroup._id;
-    rightArgument.getAttr('metadata').parentId = operatorGroup._id;
+    const nodeInfo: RequestNodeInfo = {
+      type: RequestNodeType.OPERATOR,
+      parentId: null,
+      leftChildId: null,
+      rightChildId: null,
+      containerId: operatorOval._id,
+      leftEmptyArgumentId: leftArgument._id,
+      rightEmptyArgumentId: rightArgument._id,
+      labelId: operatorLabel._id
+    };
+    operatorGroup.setAttr('metadata', nodeInfo);
 
-    operatorGroup.setAttr('metadata', { type: RequestNodeType.OPERATOR, leftChild: leftArgument, rightChild: rightArgument, parentId: null });
-    this.setupDragAndDropHandlers(operatorGroup);
-
-    this.nodes.push(operatorGroup);
+    this.redrawOperatorNode(operatorGroup);
 
     return operatorGroup;
+  }
+
+  private redrawOperatorNode(node: Group): void {
+    const nodeInfo = node.getAttr('metadata') as RequestNodeInfo;
+
+    const leftArgument: RequestNode = nodeInfo.leftChildId !== null ? this.findObjectById(node.children, nodeInfo.leftChildId)! : this.findObjectById(node.children, nodeInfo.leftEmptyArgumentId!)!;
+    const rightArgument: RequestNode = nodeInfo.rightChildId !== null ? this.findObjectById(node.children, nodeInfo.rightChildId)! : this.findObjectById(node.children, nodeInfo.rightEmptyArgumentId!)!;
+    const operatorLabel: Text = this.findObjectById(node.children, nodeInfo.labelId!);
+    const operatorContainer: Rect = this.findObjectById(node.children, nodeInfo.containerId!);
+
+    const leftArgumentWidth = leftArgument.getClientRect().width;
+    const leftArgumentHeight = leftArgument.getClientRect().height;
+
+    const rightArgumentWidth = rightArgument.getClientRect().width;
+    const rightArgumentHeight = rightArgument.getClientRect().height;
+
+    const operatorLabelWidth = operatorLabel.width();
+    const operatorLabelHeight = operatorLabel.height();
+
+    const operatorOvalWidth = operatorLabelWidth + leftArgumentWidth + rightArgumentWidth + 4 * this.internalPadding;
+    const operatorOvalHeight = Math.max(operatorLabelHeight, leftArgumentHeight, rightArgumentHeight) + this.internalPadding;
+
+    operatorContainer.setAttr('width', operatorOvalWidth);
+    operatorContainer.setAttr('height', operatorOvalHeight);
+    operatorContainer.setAttr('cornerRadius', operatorOvalHeight / 2);
+
+    operatorLabel.setAttr('offsetX', -(2 * this.internalPadding + leftArgumentWidth));
+    operatorLabel.setAttr('offsetY', -(operatorOvalHeight - operatorLabelHeight) / 2);
+
+    leftArgument.setAttr('x', 0);
+    leftArgument.setAttr('y', 0);
+    leftArgument.setAttr('offsetX', -this.internalPadding);
+    leftArgument.setAttr('offsetY', -(operatorOvalHeight - leftArgumentHeight) / 2);
+
+    rightArgument.setAttr('x', 0);
+    rightArgument.setAttr('y', 0);
+    rightArgument.setAttr('offsetX', -(operatorOvalWidth - this.internalPadding - rightArgumentWidth));
+    rightArgument.setAttr('offsetY', -(operatorOvalHeight - leftArgumentHeight) / 2);
   }
 
   private createOval(width: number, height: number, fillColor: string, draggable: boolean): Rect {
@@ -212,12 +256,13 @@ export class RequestCreatorComponent implements AfterViewInit {
       height: height,
       cornerRadius: height / 2,
       fill: fillColor,
-      strokeWidth: 0,
+      strokeWidth: 0.1,
+      stroke: "black",
       draggable: draggable
     });
   }
 
-  private createText(text: string): Text {
+  private createText(text: string, draggable: boolean): Text {
     return new Text({
       x: 0,
       y: 0,
@@ -225,7 +270,7 @@ export class RequestCreatorComponent implements AfterViewInit {
       fontSize: this.textSize,
       fontFamily: this.textFont,
       fill: this.textColor,
-      draggable: false
+      draggable: draggable
     });
   }
 
@@ -235,16 +280,6 @@ export class RequestCreatorComponent implements AfterViewInit {
       y: this.stage!.height() / 2,
       draggable: draggable,
     });
-  }
-
-  private setupDragAndDropHandlers(node: RequestNode): void {
-    node.on('dragstart', this.handleDragstart.bind(this));
-    node.on('dragend', this.handleDragend.bind(this));
-    node.on('dragenter', this.handleDragenter.bind(this));
-    node.on('dragleave', this.handleDragleave.bind(this));
-    node.on('dragover', this.handleDragover.bind(this));
-    node.on('drop', this.handleDrop.bind(this));
-    node.on('dragmove', this.handleDragmove.bind(this));
   }
 
   private handleDragstart(e: KonvaEventObject<DragEvent>): void {
@@ -266,28 +301,16 @@ export class RequestCreatorComponent implements AfterViewInit {
   }
 
   private handleDragenter(e: KonvaEventObject<DragEvent>): void {
-    if (e.target instanceof Rect && e.target.getAttr('metadata') && [RequestNodeType.LEFT_ARGUMENT, RequestNodeType.RIGHT_ARGUMENT].includes(e.target.getAttr('metadata').type)) {
-      (e.target as any).fill(this.quaternaryColor);
-    }
+    (e.target as any).fill(this.quaternaryColor);
   }
 
   private handleDragleave(e: KonvaEventObject<DragEvent>): void {
-    if (e.target instanceof Rect && e.target.getAttr('metadata') && [RequestNodeType.LEFT_ARGUMENT, RequestNodeType.RIGHT_ARGUMENT].includes(e.target.getAttr('metadata').type)) {
-      (e.target as any).fill(this.tertiaryColor);
-    }
-  }
-
-  private handleDragover(e: KonvaEventObject<DragEvent>): void {
-    if (e.target instanceof Rect && e.target.getAttr('metadata') && [RequestNodeType.LEFT_ARGUMENT, RequestNodeType.RIGHT_ARGUMENT].includes(e.target.getAttr('metadata').type)) {
-
-    }
+    (e.target as any).fill(this.tertiaryColor);
   }
 
   private handleDrop(e: KonvaEventObject<DragEvent>): void {
-    if (e.target instanceof Rect && e.target.getAttr('metadata') && [RequestNodeType.LEFT_ARGUMENT, RequestNodeType.RIGHT_ARGUMENT].includes(e.target.getAttr('metadata').type)) {
-      (e.target as any).fill(this.tertiaryColor);
-      this.mergeRequests(e.target, this.currentDragStart)
-    }
+    (e.target as any).fill(this.tertiaryColor);
+    setTimeout(() => { this.attachChild(e.target as RequestNode, this.currentDragStart); }, 50); // this delay necessary, because drageventhandlers are async
   }
 
   private handleDragmove(evt: KonvaEventObject<any>): void {
@@ -315,25 +338,61 @@ export class RequestCreatorComponent implements AfterViewInit {
     }
   }
 
-  private mergeRequests(emptyArgument: RequestNode, childToAppend: RequestNode): void {
-    console.log(emptyArgument)
-    console.log(childToAppend);
-    console.log()
+  private attachChild(emptyArgument: RequestNode, childToAttach: Group): void {
+    console.log("ATTACH CHILD");
 
+    const emptyArgumentInfo = emptyArgument.getAttr('metadata') as RequestNodeInfo;
+    const emptyArgumentParent = this.getStageObjectById(emptyArgumentInfo.parentId!) as Group;    // TODO this object can be not attatched to scene
+    const emptyArgumentParentInfo = emptyArgumentParent.getAttr('metadata') as RequestNodeInfo;
+
+    console.log(this.stage?.getChildren()[0].getChildren())
+    console.log(this.stage?.getChildren()[1].getChildren())
+
+    // childToAttach.remove();
+    // emptyArgumentParent.add(childToAttach);
+
+    childToAttach.moveTo(emptyArgumentParent)
+
+    console.log(this.stage?.getChildren()[0].getChildren())
+    console.log(this.stage?.getChildren()[1].getChildren())
+
+    if (emptyArgumentInfo.type == RequestNodeType.LEFT_ARGUMENT) {
+      this.findObjectById(emptyArgumentParent.children, emptyArgumentParentInfo.leftEmptyArgumentId!).visible(false);
+      emptyArgumentParentInfo.leftChildId = childToAttach._id;
+    }
+    else {
+      this.findObjectById(emptyArgumentParent.children, emptyArgumentParentInfo.rightEmptyArgumentId!).visible(false);
+      emptyArgumentParentInfo.rightChildId = childToAttach._id;
+    }
+
+    this.redrawOperatorNode(emptyArgumentParent);
   }
 
-  private getIntersectionObject(currentNode: RequestNode): RequestNode | null {
-    const currentNodeBounds = currentNode.getClientRect();
-    for (const node of this.nodes) {
-      const nodeBounds = node.getClientRect();
-      if (currentNode._id != node._id && this.haveIntersection(currentNodeBounds, nodeBounds)) {
-        return node;
+  private detachChild(childToAttach: Group): void {
+    console.log("DETACH CHILD");
+  }
+
+  private findObjectById(elements: any[], id: number): any {
+    for (const element of elements) {
+      if (element._id == id) {
+        return element;
       }
     }
+
     return null;
   }
 
-  private haveIntersection(r1: IRect, r2: IRect): boolean {
-    return !(r2.x > r1.x + r1.width || r2.x + r2.width < r1.x || r2.y > r1.y + r1.height || r2.y + r2.height < r1.y);
+  private getStageObjectById(id: number): any {
+    const layers: Layer[] = this.stage!.children;
+    for (const layer of layers) {
+      const objects: any[] = layer.children;
+      for (const object of objects) {
+        if (object._id === id) {
+          return object;
+        }
+      }
+    }
+
+    return null;
   }
 }
