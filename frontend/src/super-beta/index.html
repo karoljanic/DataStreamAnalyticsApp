@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script>
+    $( function() {
+        $( ".block" ).draggable(
+            {
+                
+                stop: function (event, ui) 
+                {
+                    ui.helper.animate(ui.originalPosition, "slow");
+                }
+            }
+        ) 
+        $("#dropside").droppable({
+            accept: ".block",
+            drop: function (event, ui) {
+                ui.draggable.appendTo($(this)).css({ top: 0, left: 0 })
+                let width = $(this).width()*1.25
+                let heigth = $(this).height()*1.25
+                $(this).css({width: width+"px", height: heigth+"px"})
+                
+            }
+        });
+        $(".block").droppable({
+            accept: ".block",
+            drop: function (event, ui) {
+
+                ui.draggable.appendTo($(this)).css({ top: 0, left: 0 })
+                let width = $(this).width()*1.25
+                let heigth = $(this).height()*1.25
+                $(this).css({width: width+"px", height: heigth+"px"})
+            }
+        });
+    });  
+
+    
+  </script>
+    <body>
+
+        <div id="main"> 
+            <div id="dropside"> </div>
+        </div>
+        <div id="side">
+            <div class="block" id="block1"> </div>    
+            <div class="block" id="block2"> </div>    
+            <div class="block" id="block3"> </div>    
+            <div class="block" id="block4"> </div>    
+        </div>
+
+    </body>
+</html>
