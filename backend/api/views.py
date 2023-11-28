@@ -8,8 +8,7 @@ class DataSketchList(generics.ListCreateAPIView):
     queryset = DataSketch.objects.all()
     serializer_class = DataSketchSerializer
 
-
-class DataSketchDetail(generics.RetrieveUpdateDestroyAPIView):
+class DataSketchDetail(generics.RetrieveDestroyAPIView):
     queryset = DataSketch.objects.all()
     serializer_class = DataSketchSerializer
 

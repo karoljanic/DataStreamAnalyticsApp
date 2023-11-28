@@ -18,10 +18,8 @@ class TypeSerializer(serializers.ModelSerializer):
         model = Type
         fields = ['id', 'stream', 'name']
 
-class DataSketchSerializer(serializers.ModelSerializer):        
+class DataSketchSerializer(serializers.ModelSerializer):
     value = serializers.ReadOnlyField()
-
     class Meta:
         model = DataSketch
-        fields = ['id', 'day', 'tag', 'typ', 'value']
-
+        fields = ['id', 'day', 'tag', 'typ', 'value', 'sketch']

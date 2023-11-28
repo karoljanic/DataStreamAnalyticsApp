@@ -20,7 +20,7 @@ class DataSketch(models.Model):
 	tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
 	typ = models.ForeignKey(Type, on_delete=models.CASCADE)
 
-	sketch = models.BinaryField()
+	sketch = models.BinaryField(editable=True)
 
 	def value(self):
 		ds = DS()
