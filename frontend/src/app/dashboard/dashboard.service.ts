@@ -9,45 +9,45 @@ import { valueswa1, valueswr1, valuesp1, valuessmallest, valuesaverage, valueshi
 
 export class SampleDataService {
 
-  valueswa1:any[]=[];
-  valueswr1:any[]=[];
-  valuesp1: any[]=[];
-  valuessmallest: any=[];
-  valuesaverage:any[]=[];
-  valueshighest:any[]=[];
-  
+  valueswa1: any[] = [];
+  valueswr1: any[] = [];
+  valuesp1: any[] = [];
+  valuessmallest: any = [];
+  valuesaverage: any[] = [];
+  valueshighest: any[] = [];
+
   constructor() {
-    this.valueswa1=valueswa1;
-    this.valueswr1=valueswr1;
-    this.valuesp1=valuesp1;
-    this.valuessmallest=valuessmallest;
-    this.valuesaverage=valuesaverage;
-    this.valueshighest=valueshighest;
+    this.valueswa1 = valueswa1;
+    this.valueswr1 = valueswr1;
+    this.valuesp1 = valuesp1;
+    this.valuessmallest = valuessmallest;
+    this.valuesaverage = valuesaverage;
+    this.valueshighest = valueshighest;
   }
 
-  getValueswa1():any[]{
+  getValueswa1(): any[] {
     return valueswa1;
   }
 
-  getValueswr1():any[]{
+  getValueswr1(): any[] {
     return valueswr1;
   }
 
-  getValuesp1():any[]{
+  getValuesp1(): any[] {
     return valuesp1;
   }
 
-  getValuesmallest():any[]{
+  getValuesmallest(): any[] {
     return valuessmallest;
   }
 
-  getValuesaverage():any[]{
+  getValuesaverage(): any[] {
     return valuesaverage;
   }
 
-  getValueshighest():any[]{
+  getValueshighest(): any[] {
     return valueshighest;
   }
 
-  
+
 }
