@@ -1,4 +1,4 @@
-// Namespace containing functions for creating and operating on data sketches - Fast-Exp-Sketch
+// Namespace containing functions for creating and operating on data sketches Fast-Exp-Sketch
 // implemented on the basis of https://www.vldb.org/pvldb/vol16/p1967-lemiesz.pdf
 
 #ifndef DATA_SKETCHES_HPP
