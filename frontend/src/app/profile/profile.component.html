@@ -1,0 +1,6 @@
+<div id="theme-selection">
+    <label id="theme-selection-label">Select theme</label>
+    <mat-radio-group id="theme-selection-radios" aria-labelledby="theme-selection-label">
+        <mat-radio-button *ngFor="let theme of themes" id="theme-selection-option" [value]="theme.enum" [checked]="theme.checked"(click)="changeThemeStyle(theme.enum)">{{theme.name}}</mat-radio-button>
+    </mat-radio-group>
+</div>

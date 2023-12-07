@@ -5,7 +5,11 @@
   "projects": {
     "DataStreamAnalytics": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -25,7 +29,29 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              {
+                "input": "src/styles.scss"
+              },
+              {
+                "inject": false,
+                "input": "src/themes/subdued-dark-theme.scss",
+                "bundleName": "subdued-dark-theme"
+              },
+              {
+                "inject": false,
+                "input": "src/themes/subdued-light-theme.scss",
+                "bundleName": "subdued-light-theme"
+              },
+              {
+                "inject": false,
+                "input": "src/themes/colorful-dark-theme.scss",
+                "bundleName": "colorful-dark-theme"
+              },
+              {
+                "inject": false,
+                "input": "src/themes/colorful-light-theme.scss",
+                "bundleName": "colorful-light-theme"
+              }
             ],
             "scripts": []
           },
@@ -63,7 +89,8 @@
               "browserTarget": "DataStreamAnalytics:build:production"
             },
             "development": {
-              "browserTarget": "DataStreamAnalytics:build:development"
+              "browserTarget": "DataStreamAnalytics:build:development",
+              "proxyConfig": "src/proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
@@ -87,7 +114,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss"
             ],
             "scripts": []
           }
