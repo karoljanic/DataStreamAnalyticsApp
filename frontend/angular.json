@@ -89,7 +89,8 @@
               "browserTarget": "DataStreamAnalytics:build:production"
             },
             "development": {
-              "browserTarget": "DataStreamAnalytics:build:development"
+              "browserTarget": "DataStreamAnalytics:build:development",
+              "proxyConfig": "src/proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

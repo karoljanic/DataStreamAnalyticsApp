@@ -25,9 +25,13 @@ data_sketches_library.initializeSketch.argtypes = ctypes.POINTER(ctypes.c_double
 data_sketches_library.initializeSketch.restype = None
 initializeSketch = data_sketches_library.initializeSketch
 
-data_sketches_library.updateSketch.argtypes = ctypes.POINTER(ctypes.c_double), ctypes.c_uint16, ctypes.POINTER(Sample), ctypes.c_size_t, ctypes.c_uint16
-data_sketches_library.updateSketch.restype = None
-updateSketch = data_sketches_library.updateSketch
+data_sketches_library.updateSketchWithSingleSample.argtypes = ctypes.POINTER(ctypes.c_double), ctypes.c_uint16, Sample, ctypes.c_uint16
+data_sketches_library.updateSketchWithSingleSample.restype = None
+updateSketchWithSingleSample = data_sketches_library.updateSketchWithSingleSample
+
+data_sketches_library.updateSketchWithMultipleSamples.argtypes = ctypes.POINTER(ctypes.c_double), ctypes.c_uint16, ctypes.POINTER(Sample), ctypes.c_size_t, ctypes.c_uint16
+data_sketches_library.updateSketchWithMultipleSamples.restype = None
+updateSketchWithMultipleSamples = data_sketches_library.updateSketchWithMultipleSamples
 
 data_sketches_library.estimateSingleCardinality.argtypes = ctypes.POINTER(ctypes.c_double), ctypes.c_uint16
 data_sketches_library.estimateSingleCardinality.restype = ctypes.c_double
@@ -37,8 +41,10 @@ data_sketches_library.estimateDnfCardinality.argtypes = ctypes.POINTER(ctypes.PO
 data_sketches_library.estimateDnfCardinality.restype = ctypes.c_double
 estimateDnfCardinality = data_sketches_library.estimateDnfCardinality
 
+Sample: tuple[int, int]
+
 class SamplesArray:
-    samples: list[tuple[int, int]] = []
+    samples: list[Sample] = []
 
 
 class DataSketch:
@@ -47,13 +53,16 @@ class DataSketch:
     def __init__(self) -> None:
         initializeSketch(self.values, SKETCH_SIZE)
 
+    def update_from_sample(self, sample):
+        updateSketchWithSingleSample(self.values, SKETCH_SIZE, sample, SEED)
+
     def update_from_samples(self, samples_collector: SamplesArray):
         sample_count = len(samples_collector.samples)
         samples = (Sample * sample_count)()
         for i in range(0, sample_count):
             id, value = samples_collector.samples[i]
             samples[i] = Sample(id,value)
-        updateSketch(self.values, SKETCH_SIZE, samples, sample_count, SEED)
+        updateSketchWithMultipleSamples(self.values, SKETCH_SIZE, samples, sample_count, SEED)
     
     def read_value(self) -> float:
         x = estimateSingleCardinality(self.values, SKETCH_SIZE)

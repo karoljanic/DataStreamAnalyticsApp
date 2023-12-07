@@ -19,6 +19,7 @@ import { LoginComponent } from './login/login.component';
 import { DataAnalyzeComponent } from './data-analyze/data-analyze.component';
 import { StyleManagerService } from './services/stylemanager.service';
 import { LocalStorageService } from './services/localstorage.service';
+import { RequestCreatorComponent } from './data-analyze/request-creator/request-creator.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { LocalStorageService } from './services/localstorage.service';
     ProfileComponent,
     DashboardComponent,
     LoginComponent,
-    DataAnalyzeComponent
+    DataAnalyzeComponent,
+    RequestCreatorComponent
   ],
   imports: [
     AppRoutingModule,
