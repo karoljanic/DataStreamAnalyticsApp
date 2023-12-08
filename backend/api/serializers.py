@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models import DataStream, DataSketch, Tag, Type
+from api.models import DataStream, DataSketch, Tag, Type, Query
 
 import datasketches
 import base64
@@ -32,3 +32,8 @@ class DataSketchSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataSketch
         fields = ['id', 'day', 'tag', 'typ', 'value', 'sketch']
+
+class QuerySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Query
+        fields = ['id', 'tree_form', 'dnf']

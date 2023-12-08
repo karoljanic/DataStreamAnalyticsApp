@@ -11,6 +11,8 @@ urlpatterns = [
     path('tags/', views.TagList.as_view()),
 
     path('types/', views.TypeList.as_view()),
+
+    path('queries/', views.QueryList.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
