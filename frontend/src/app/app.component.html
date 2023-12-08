@@ -4,9 +4,25 @@
             <img id="app-logo" src="../assets/simple-logo.png" alt="Logo">
         </div>
         <mat-nav-list id="app-sidenav-content-list">
-            <p mat-list-item *ngFor="let menuItem of menuItems" id="app-sidenav-content-list-row" (click)="navigateToRoute(menuItem.route)">
-                <mat-icon id="app-sidenav-content-list-icon">{{ menuItem.icon }}</mat-icon>
-                <span id="app-sidenav-content-list-label">{{ menuItem.text }}</span>
+            <p mat-list-item id="app-sidenav-content-list-row" (click)="navigateToRoute('')">
+                <mat-icon id="app-sidenav-content-list-icon">home</mat-icon>
+                <span id="app-sidenav-content-list-label">Home</span>
+            </p>
+            <p mat-list-item id="app-sidenav-content-list-row" (click)="navigateToRoute('analyzer')">
+                <mat-icon id="app-sidenav-content-list-icon">bar_chart</mat-icon>
+                <span id="app-sidenav-content-list-label">Analyze</span>
+            </p>
+            <p mat-list-item id="app-sidenav-content-list-row" (click)="navigateToProfile()">
+                <mat-icon id="app-sidenav-content-list-icon">person</mat-icon>
+                <span id="app-sidenav-content-list-label">Profile</span>
+            </p>
+            <p *ngIf="user === null" mat-list-item id="app-sidenav-content-list-row" (click)="navigateToRoute('login')">
+                <mat-icon id="app-sidenav-content-list-icon">login</mat-icon>
+                <span id="app-sidenav-content-list-label">Login</span>
+            </p>
+            <p *ngIf="user !== null" mat-list-item id="app-sidenav-content-list-row" (click)="logout()">
+                <mat-icon id="app-sidenav-content-list-icon">logout</mat-icon>
+                <span id="app-sidenav-content-list-label">Logout</span>
             </p>
         </mat-nav-list>
     </mat-sidenav>

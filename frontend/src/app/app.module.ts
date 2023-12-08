@@ -12,7 +12,10 @@ import { MatButtonModule } from '@angular/material/button'
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatRadioModule } from '@angular/material/radio';
-
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatInputModule } from '@angular/material/input';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
 import { ProfileComponent } from './profile/profile.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
@@ -21,7 +24,10 @@ import { DataAnalyzeComponent } from './data-analyze/data-analyze.component';
 import { StyleManagerService } from './services/stylemanager.service';
 import { LocalStorageService } from './services/localstorage.service';
 import { AnalyzeDataService } from './services/analyzedata.service';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { AuthService } from './services/auth.service';
+import { TokenInterceptor } from './token.interceptor';
+import { AuthRequiredComponent } from './auth-required/auth-required.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +36,8 @@ import { HttpClientModule } from '@angular/common/http';
     DashboardComponent,
     LoginComponent,
     DataAnalyzeComponent,
-    RequestCreatorComponent
+    RequestCreatorComponent,
+    AuthRequiredComponent
   ],
   imports: [
     AppRoutingModule,
@@ -43,12 +50,18 @@ import { HttpClientModule } from '@angular/common/http';
     MatButtonModule,
     MatIconModule,
     MatListModule,
-    MatRadioModule
+    MatRadioModule,
+    MatStepperModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatCardModule
   ],
   providers: [
     LocalStorageService,
     StyleManagerService,
-    AnalyzeDataService
+    AuthService,
+    AnalyzeDataService,
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

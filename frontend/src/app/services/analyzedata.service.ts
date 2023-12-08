@@ -5,20 +5,14 @@ import { Injectable } from "@angular/core";
     providedIn: 'root'
 })
 export class AnalyzeDataService {
-    static streamsApiUri = 'http://localhost:8000/api/streams';
-    static tagsApiUri = 'http://localhost:8000/api/tags';
-    static typesApiUri = 'http://localhost:8000/api/types';
+    private static streamsApiUri = '/api/streams';
+    private static tagsApiUri = '/api/tags';
+    private static typesApiUri = '/api/types';
 
     constructor(private http: HttpClient) { }
 
     getStreams() {
-        //const headers = new HttpHeaders({ 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' });
-
-        const headers = new HttpHeaders({
-            "Access-Control-Allow-Origin": "*"
-        });
-
-        return this.http.get(AnalyzeDataService.streamsApiUri, { headers: headers });
+        return this.http.get(AnalyzeDataService.streamsApiUri);
     }
 
     getTags(streamId: string) {
