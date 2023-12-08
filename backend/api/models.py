@@ -1,5 +1,5 @@
 from django.db import models
-from datasketches import DataSketch as DS
+from datasketches import compute_dnf, DataSketch as DS
 import api.querytrees
 
 class DataStream(models.Model):
@@ -41,9 +41,30 @@ class DataSketch(models.Model):
 			models.UniqueConstraint(fields=['day','tag','typ'], name="unique_keys")
 		]
 
+from datetime import date
+
 class Query(models.Model):
 	tree_form = models.JSONField()
 	dnf = models.JSONField(editable=False)
+
+	def value(self):
+		TEST_DATE = date.fromisoformat('2017-04-30')
+		TEST_TYPE = 1
+		sketches_symbols = self.dnf['symbols']
+		sketches_bytes = [DataSketch.objects.filter(day=TEST_DATE).filter(typ=TEST_TYPE).filter(tag=s).get().sketch for s in sketches_symbols]
+		sketches = []
+		for b in sketches_bytes:
+			d = DS()
+			d.from_bytes(b)
+			sketches.append(d)
+		dnf = self.dnf['table']
+
+		print(sketches_bytes)
+		print(sketches)
+
+		computed = compute_dnf(sketches, dnf)
+
+		return computed
 
 	def save(self, *args, **kwargs):
 		self.dnf = api.querytrees.tree_to_table(self.tree_form)

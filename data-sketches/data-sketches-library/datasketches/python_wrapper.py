@@ -46,11 +46,9 @@ Sample: tuple[int, int]
 class SamplesArray:
     samples: list[Sample] = []
 
-
 class DataSketch:
-    values = (ctypes.c_float * SKETCH_SIZE)()
-
     def __init__(self) -> None:
+        self.values = (ctypes.c_float * SKETCH_SIZE)()
         initializeSketch(self.values, SKETCH_SIZE)
 
     def update_from_sample(self, sample):
@@ -74,4 +72,24 @@ class DataSketch:
     def from_bytes(self, bytes: bytes):
         ctypes.memmove(self.values, bytes, ctypes.sizeof(ctypes.c_float) * SKETCH_SIZE)
 
+# data_sketches_library.estimateDnfCardinality.argtypes = ctypes.POINTER(ctypes.POINTER(ctypes.c_float)), ctypes.c_size_t, ctypes.c_uint16, ctypes.POINTER(ctypes.POINTER(ctypes.c_ssize_t)), ctypes.c_size_t
+# data_sketches_library.estimateDnfCardinality.restype = ctypes.c_float
+# estimateDnfCardinality = data_sketches_library.estimateDnfCardinality
 
+def compute_dnf(sketches: list[DataSketch], table: list[list[int]]):
+    sketches_count = len(sketches)
+    dnf_len = len(table)
+    sketches_arr = (ctypes.POINTER(ctypes.c_float) * sketches_count)()
+    dnf_arr = (ctypes.POINTER(ctypes.c_ssize_t) * dnf_len)()
+
+    for i in range(sketches_count):
+        sketches_arr[i] = sketches[i].values
+    
+    for i in range(dnf_len):
+        form_arr = (ctypes.c_ssize_t * sketches_count)()
+        for j in range(sketches_count):
+            form_arr[j] = table[i][j]
+        dnf_arr[i] = form_arr
+
+    res = estimateDnfCardinality(sketches_arr, sketches_count, SKETCH_SIZE, dnf_arr, dnf_len)
+    return res
