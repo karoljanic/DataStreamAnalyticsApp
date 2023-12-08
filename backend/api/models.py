@@ -2,15 +2,23 @@ from django.db import models
 from datasketches import DataSketch as DS
 
 class DataStream(models.Model):
-	name = models.CharField(max_length=255)
+	name = models.CharField(max_length=255, unique=True)
 
 class Tag(models.Model):
 	stream = models.ForeignKey(DataStream, on_delete=models.CASCADE)
 	name = models.CharField(max_length=255)
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(fields=['stream', 'name'], name="unique_names_tags")
+		]
 
 class Type(models.Model):
 	stream = models.ForeignKey(DataStream, on_delete=models.CASCADE)
 	name = models.CharField(max_length=255)
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(fields=['stream', 'name'], name="unique_names_types")
+		]
 
 # Najważniejszy model - Szkic danych 
 # Dzień | Tag | Zawartość
