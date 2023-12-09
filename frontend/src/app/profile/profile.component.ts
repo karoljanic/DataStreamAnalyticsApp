@@ -1,13 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { StyleManagerService, ThemeStyle } from '../services/stylemanager.service';
 import { LocalStorageService } from '../services/localstorage.service';
+import { UserProfile } from './user-profile';
+import { UserProfileService } from '../services/userprofile.service';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
+
   themes = [
     { name: 'Subdued Light Theme', enum: ThemeStyle.SubduedLight, checked: true },
     { name: 'Subdued Dark Theme', enum: ThemeStyle.SubduedDark, checked: false },
@@ -15,17 +19,39 @@ export class ProfileComponent {
     { name: 'Colorful Dark Theme', enum: ThemeStyle.ColorfulDark, checked: false },
   ];
 
-  constructor(private styleService: StyleManagerService,
-              private localStorage: LocalStorageService) {
+  userProfile: UserProfile | null = null;
+  profilePicture: string = "assets/empty-image.jpg";
 
-    var currentTheme = localStorage.getValue(LocalStorageService.themeKey);
-    if(currentTheme === null) {
+  constructor(private userProfileService: UserProfileService,
+    private styleService: StyleManagerService,
+    private localStorage: LocalStorageService,
+    private activatedRoute: ActivatedRoute) {
+
+    var currentTheme = localStorage.get(LocalStorageService.themeKey);
+    if (currentTheme === null) {
       currentTheme = ThemeStyle.Default;
     }
 
-    for(let theme of this.themes) {
+    for (let theme of this.themes) {
       theme.checked = (theme.enum == currentTheme);
     }
+  }
+
+  ngOnInit(): void {
+    const userData = JSON.parse(this.localStorage.get(LocalStorageService.userKey) || '{}')
+    const userId = userData.user_id;
+    console.log(userId);
+    this.userProfileService.getUserProfile(userId).subscribe({
+      next: (data) => {
+        this.userProfile = data;
+        if (data != null && data.picture != null) {
+          this.profilePicture = 'http://127.0.0.1:8000/api' + data.picture.substring(data.picture.indexOf('/media'));
+        }
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    });
   }
 
   changeThemeStyle(themeStyle: ThemeStyle): void {

@@ -1,6 +1,37 @@
-<div id="theme-selection">
-    <label id="theme-selection-label">Select theme</label>
-    <mat-radio-group id="theme-selection-radios" aria-labelledby="theme-selection-label">
-        <mat-radio-button *ngFor="let theme of themes" id="theme-selection-option" [value]="theme.enum" [checked]="theme.checked"(click)="changeThemeStyle(theme.enum)">{{theme.name}}</mat-radio-button>
-    </mat-radio-group>
+<div class="profile-container">  
+  <mat-card class="left-profile-card">
+    <mat-card-header class="profile-header">
+        <h3>
+            Profile Information
+        </h3>
+    </mat-card-header>
+    <mat-card-content class="profile-image">
+      <img mat-card-image src="{{profilePicture}}" alt="Profile picture" [style.width.%]="90">
+    </mat-card-content>
+    <mat-card-content class="profile-info">
+      <span *ngIf="!userProfile">Loading...</span>
+      <span *ngIf="userProfile">
+        <h3>Name:</h3>
+        <p>{{userProfile.name}}</p>
+      </span>
+      <span *ngIf="userProfile">
+        <h3>Surname:</h3>
+        <p>{{userProfile.surname}}</p>
+      </span>
+      <span *ngIf="userProfile">
+        <h3>Email:</h3>
+        <p>{{userProfile.email}}</p>
+      </span>
+    </mat-card-content>
+  </mat-card>
+  <mat-card class="right-profile-card">
+    <mat-card-header class="profile-header">
+        <h3>
+            Saved Analysis
+        </h3>
+    </mat-card-header>
+    <mat-card-content class="profile-saved">
+     
+    </mat-card-content>
+  </mat-card>
 </div>
