@@ -1,6 +1,6 @@
 
-from api.models import DataSketch, DataStream, Tag, Type
-from api.serializers import DataSketchSerializer, DataStreamSerializer, TagSerializer, TypeSerializer
+from api.models import DataSketch, DataStream, Tag, Type, Query
+from api.serializers import DataSketchSerializer, DataStreamSerializer, TagSerializer, TypeSerializer, QuerySerializer
 from rest_framework import generics, mixins
 from rest_framework.views import APIView
 
@@ -25,3 +25,7 @@ class TypeList(generics.ListCreateAPIView):
 class DataStreamList(generics.ListCreateAPIView):
     queryset = DataStream.objects.all()
     serializer_class = DataStreamSerializer
+
+class QueryList(generics.ListCreateAPIView):
+    queryset = Query.objects.all()
+    serializer_class = QuerySerializer

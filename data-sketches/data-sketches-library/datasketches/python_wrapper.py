@@ -11,7 +11,7 @@ SEED = 1024
 class Sample(ctypes.Structure):
     _fields_ = [
         ("identifier", ctypes.c_uint32),
-        ("value", ctypes.c_double)
+        ("value", ctypes.c_float)
     ]
 
     def __repr__(self):
@@ -21,24 +21,24 @@ class Sample(ctypes.Structure):
 data_sketches_library = ctypes.CDLL(PATH_TO_LIBRARY)
 
 # define args and returns of library functions
-data_sketches_library.initializeSketch.argtypes = ctypes.POINTER(ctypes.c_double), ctypes.c_uint16
+data_sketches_library.initializeSketch.argtypes = ctypes.POINTER(ctypes.c_float), ctypes.c_uint16
 data_sketches_library.initializeSketch.restype = None
 initializeSketch = data_sketches_library.initializeSketch
 
-data_sketches_library.updateSketchWithSingleSample.argtypes = ctypes.POINTER(ctypes.c_double), ctypes.c_uint16, Sample, ctypes.c_uint16
+data_sketches_library.updateSketchWithSingleSample.argtypes = ctypes.POINTER(ctypes.c_float), ctypes.c_uint16, Sample, ctypes.c_uint16
 data_sketches_library.updateSketchWithSingleSample.restype = None
 updateSketchWithSingleSample = data_sketches_library.updateSketchWithSingleSample
 
-data_sketches_library.updateSketchWithMultipleSamples.argtypes = ctypes.POINTER(ctypes.c_double), ctypes.c_uint16, ctypes.POINTER(Sample), ctypes.c_size_t, ctypes.c_uint16
+data_sketches_library.updateSketchWithMultipleSamples.argtypes = ctypes.POINTER(ctypes.c_float), ctypes.c_uint16, ctypes.POINTER(Sample), ctypes.c_size_t, ctypes.c_uint16
 data_sketches_library.updateSketchWithMultipleSamples.restype = None
 updateSketchWithMultipleSamples = data_sketches_library.updateSketchWithMultipleSamples
 
-data_sketches_library.estimateSingleCardinality.argtypes = ctypes.POINTER(ctypes.c_double), ctypes.c_uint16
-data_sketches_library.estimateSingleCardinality.restype = ctypes.c_double
+data_sketches_library.estimateSingleCardinality.argtypes = ctypes.POINTER(ctypes.c_float), ctypes.c_uint16
+data_sketches_library.estimateSingleCardinality.restype = ctypes.c_float
 estimateSingleCardinality = data_sketches_library.estimateSingleCardinality
 
-data_sketches_library.estimateDnfCardinality.argtypes = ctypes.POINTER(ctypes.POINTER(ctypes.c_double)), ctypes.c_size_t, ctypes.c_uint16, ctypes.POINTER(ctypes.POINTER(ctypes.c_ssize_t)), ctypes.c_size_t
-data_sketches_library.estimateDnfCardinality.restype = ctypes.c_double
+data_sketches_library.estimateDnfCardinality.argtypes = ctypes.POINTER(ctypes.POINTER(ctypes.c_float)), ctypes.c_size_t, ctypes.c_uint16, ctypes.POINTER(ctypes.POINTER(ctypes.c_ssize_t)), ctypes.c_size_t
+data_sketches_library.estimateDnfCardinality.restype = ctypes.c_float
 estimateDnfCardinality = data_sketches_library.estimateDnfCardinality
 
 Sample: tuple[int, int]
@@ -46,11 +46,9 @@ Sample: tuple[int, int]
 class SamplesArray:
     samples: list[Sample] = []
 
-
 class DataSketch:
-    values = (ctypes.c_double * SKETCH_SIZE)()
-
     def __init__(self) -> None:
+        self.values = (ctypes.c_float * SKETCH_SIZE)()
         initializeSketch(self.values, SKETCH_SIZE)
 
     def update_from_sample(self, sample):
@@ -72,6 +70,26 @@ class DataSketch:
         return bytes(self.values)
     
     def from_bytes(self, bytes: bytes):
-        ctypes.memmove(self.values, bytes, ctypes.sizeof(ctypes.c_double) * SKETCH_SIZE)
+        ctypes.memmove(self.values, bytes, ctypes.sizeof(ctypes.c_float) * SKETCH_SIZE)
 
+# data_sketches_library.estimateDnfCardinality.argtypes = ctypes.POINTER(ctypes.POINTER(ctypes.c_float)), ctypes.c_size_t, ctypes.c_uint16, ctypes.POINTER(ctypes.POINTER(ctypes.c_ssize_t)), ctypes.c_size_t
+# data_sketches_library.estimateDnfCardinality.restype = ctypes.c_float
+# estimateDnfCardinality = data_sketches_library.estimateDnfCardinality
 
+def compute_dnf(sketches: list[DataSketch], table: list[list[int]]):
+    sketches_count = len(sketches)
+    dnf_len = len(table)
+    sketches_arr = (ctypes.POINTER(ctypes.c_float) * sketches_count)()
+    dnf_arr = (ctypes.POINTER(ctypes.c_ssize_t) * dnf_len)()
+
+    for i in range(sketches_count):
+        sketches_arr[i] = sketches[i].values
+    
+    for i in range(dnf_len):
+        form_arr = (ctypes.c_ssize_t * sketches_count)()
+        for j in range(sketches_count):
+            form_arr[j] = table[i][j]
+        dnf_arr[i] = form_arr
+
+    res = estimateDnfCardinality(sketches_arr, sketches_count, SKETCH_SIZE, dnf_arr, dnf_len)
+    return res
