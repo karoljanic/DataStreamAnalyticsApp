@@ -4,8 +4,8 @@
     <form [formGroup]="logInForm" (ngSubmit)="onLogInSubmit(logInForm.value)">
       <p>
         <mat-form-field appearance="fill">
-          <mat-label>User name</mat-label>
-          <input matInput formControlName="username">
+          <mat-label>User email</mat-label>
+          <input matInput formControlName="email" type="email">
         </mat-form-field>
       </p>
       <p>
@@ -38,12 +38,6 @@
               <mat-form-field appearance="fill">
                 <mat-label>User email</mat-label>
                   <input matInput formControlName="email" type="email">
-              </mat-form-field>
-            </p>
-            <p>
-              <mat-form-field appearance="fill">
-                <mat-label>User username</mat-label>
-                  <input matInput formControlName="username">
               </mat-form-field>
             </p>
             <p>

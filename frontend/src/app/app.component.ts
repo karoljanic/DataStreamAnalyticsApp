@@ -23,7 +23,7 @@ export class AppComponent implements OnInit {
   constructor(private router: Router,
     private styleService: StyleManagerService,
     private localStorage: LocalStorageService,
-    private authServce: AuthService) {
+    private authService: AuthService) {
 
     const themeName = this.localStorage.get(LocalStorageService.themeKey);
 
@@ -39,7 +39,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.authServce.loggedInUser.subscribe(user => {
+    this.authService.loggedInUser.subscribe(user => {
       this.user = user;
     });
   }
@@ -52,10 +52,21 @@ export class AppComponent implements OnInit {
     if (this.user !== null) {
       this.router.navigateByUrl(`/profile/${this.user.user_id}`);
     }
+    else {
+      this.router.navigateByUrl(`/authentication-required`);
+    }
   }
 
   logout(): void {
-    this.authServce.setLoggedOutUser();
-    this.navigateToRoute('');
+    this.authService.logout().subscribe({
+      next: (data) => {
+        this.authService.setLoggedOutUser();
+        this.navigateToRoute('');
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    });
+
   }
 }

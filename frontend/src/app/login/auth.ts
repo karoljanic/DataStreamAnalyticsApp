@@ -1,5 +1,5 @@
 export interface UserCredentials {
-    username: string,
+    email: string,
     password: string
 }
 
@@ -13,7 +13,6 @@ export interface RegisterUserInformation {
     name: string,
     surname: string,
     email: string,
-    username: string,
     password: string,
     confirmPassword: string
 }

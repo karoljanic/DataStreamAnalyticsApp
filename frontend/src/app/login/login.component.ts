@@ -15,7 +15,7 @@ export class LoginComponent implements OnInit {
 
   constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) {
     this.logInForm = this.formBuilder.group({
-      username: ['', Validators.required],
+      email: ['', Validators.required],
       password: ['', Validators.required]
     });
 
@@ -23,7 +23,6 @@ export class LoginComponent implements OnInit {
       name: ['', Validators.required],
       surname: ['', Validators.required],
       email: ['', Validators.required],
-      username: ['', Validators.required],
       password: ['', Validators.required],
       confirmPassword: ['', Validators.required]
     });
@@ -32,7 +31,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void { }
 
   logInUser(user: UserCredentials): void {
-    this.authService.login(user.username, user.password).subscribe({
+    this.authService.login(user.email, user.password).subscribe({
       next: (data) => {
         this.authService.setLoggedInUser(data);
         this.router.navigateByUrl(`/`);
@@ -43,11 +42,10 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  registerUser(user: RegisterUserInformation): void {
-    this.authService.register(user).subscribe({
+  signUpUser(user: RegisterUserInformation): void {
+    this.authService.signup(user).subscribe({
       next: (data) => {
-        this.authService.setLoggedInUser(data);
-        this.router.navigateByUrl(`/`);
+        alert("User registered successfully! Check your email for confirmation.");
       },
       error: (error) => {
         console.log(error);
@@ -69,7 +67,7 @@ export class LoginComponent implements OnInit {
       console.log(this.registerForm.errors);
     }
     else {
-      this.registerUser(formData);
+      this.signUpUser(formData);
     }
   }
 } 

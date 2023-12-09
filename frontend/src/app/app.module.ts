@@ -28,6 +28,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthService } from './services/auth.service';
 import { TokenInterceptor } from './token.interceptor';
 import { AuthRequiredComponent } from './auth-required/auth-required.component';
+import { ActivationComponent } from './activation/activation.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import { AuthRequiredComponent } from './auth-required/auth-required.component';
     LoginComponent,
     DataAnalyzeComponent,
     RequestCreatorComponent,
-    AuthRequiredComponent
+    AuthRequiredComponent,
+    ActivationComponent
   ],
   imports: [
     AppRoutingModule,
