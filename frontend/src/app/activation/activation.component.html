@@ -1,1 +1,12 @@
-<button mat-flat-button color="primary" cdkFocusInitial (click)="activate();">Click to activate your account!</button>
+<mat-card class="activation-card">
+    <mat-card-header class="activation-header">
+        <h3>
+            Click Button Below To Activate Your Account
+        </h3>
+    </mat-card-header>
+    <mat-card-content class="activation-card-content">
+        <button mat-flat-button color="primary" cdkFocusInitial (click)="activate();">Activate account</button>
+        <p></p>
+        <mat-error>{{info}}</mat-error>
+    </mat-card-content>
+</mat-card>

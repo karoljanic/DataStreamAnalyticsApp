@@ -20,6 +20,7 @@ export class ProfileComponent implements OnInit {
   ];
 
   userProfile: UserProfile | null = null;
+  profilePicture: string = "assets/empty-image.jpg";
 
   constructor(private userProfileService: UserProfileService,
     private styleService: StyleManagerService,
@@ -37,10 +38,15 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const userId = this.activatedRoute.snapshot.paramMap.get('user_id');
+    const userData = JSON.parse(this.localStorage.get(LocalStorageService.userKey) || '{}')
+    const userId = userData.user_id;
+    console.log(userId);
     this.userProfileService.getUserProfile(userId).subscribe({
       next: (data) => {
         this.userProfile = data;
+        if (data != null && data.picture != null) {
+          this.profilePicture = 'http://127.0.0.1:8000/api' + data.picture.substring(data.picture.indexOf('/media'));
+        }
       },
       error: (error) => {
         console.log(error);

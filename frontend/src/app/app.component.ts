@@ -50,7 +50,7 @@ export class AppComponent implements OnInit {
 
   navigateToProfile(): void {
     if (this.user !== null) {
-      this.router.navigateByUrl(`/profile/${this.user.user_id}`);
+      this.router.navigateByUrl('/profile');
     }
     else {
       this.router.navigateByUrl(`/authentication-required`);
@@ -61,7 +61,7 @@ export class AppComponent implements OnInit {
     this.authService.logout().subscribe({
       next: (data) => {
         this.authService.setLoggedOutUser();
-        this.navigateToRoute('');
+        this.navigateToRoute('/login');
       },
       error: (error) => {
         console.log(error);

@@ -13,7 +13,7 @@ const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'activate/:uid/:token', component: ActivationComponent },
     { path: 'authentication-required', component: AuthRequiredComponent },
-    { path: 'profile/:user_id', component: ProfileComponent, canActivate: [AuthGuard] },
+    { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
     { path: 'analyzer', component: DataAnalyzeComponent, canActivate: [AuthGuard] },
     { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

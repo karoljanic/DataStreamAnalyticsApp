@@ -1,12 +1,20 @@
-body {
-    text-align: center;
-    background-color: rgb(231, 233, 235);
+.auth-container {
+    width: 100%;
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: space-evenly;
 }
 
-.auth-container {
-    display: inline-flex;
-    text-align: center;
-    margin-top: 11em;
+.auth-card {
+    margin: 0;
+    width: 45%;
+    padding: 1rem;
+    height: 100%;
+}
+
+.auth-card-content {
+    margin-left: 10%;
+    margin-right: 10%;
 }
 
 .inp {

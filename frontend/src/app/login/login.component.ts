@@ -3,6 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { RegisterUserInformation, UserCredentials } from './auth';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-login',
@@ -12,8 +13,10 @@ import { Router } from '@angular/router';
 export class LoginComponent implements OnInit {
   logInForm: any;
   registerForm: any;
+  loginError: string = '';
+  registerError: string = '';
 
-  constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) {
+  constructor(private formBuilder: FormBuilder, private snackBar: MatSnackBar, private authService: AuthService, private router: Router) {
     this.logInForm = this.formBuilder.group({
       email: ['', Validators.required],
       password: ['', Validators.required]
@@ -31,31 +34,34 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void { }
 
   logInUser(user: UserCredentials): void {
+    this.loginError = '';
     this.authService.login(user.email, user.password).subscribe({
       next: (data) => {
         this.authService.setLoggedInUser(data);
         this.router.navigateByUrl(`/`);
       },
       error: (error) => {
-        console.log(error);
+        this.loginError = error['error']['non_field_errors'][0];
       }
     });
   }
 
   signUpUser(user: RegisterUserInformation): void {
+    this.registerError = '';
     this.authService.signup(user).subscribe({
       next: (data) => {
-        alert("User registered successfully! Check your email for confirmation.");
+        this.snackBar.open("User registered successfully! Check your email for confirmation.", "Close");
       },
       error: (error) => {
         console.log(error);
+        this.registerError = error['error']['message'];
       }
     });
   }
 
   onLogInSubmit(formData: UserCredentials): void {
     if (this.logInForm.invalid) {
-      console.log(this.logInForm.errors);
+      this.loginError = 'Fill form data';
     }
     else {
       this.logInUser(formData);
@@ -64,7 +70,7 @@ export class LoginComponent implements OnInit {
 
   onRegisterSubmit(formData: RegisterUserInformation): void {
     if (this.registerForm.invalid) {
-      console.log(this.registerForm.errors);
+      this.registerError = 'Fill form data';
     }
     else {
       this.signUpUser(formData);

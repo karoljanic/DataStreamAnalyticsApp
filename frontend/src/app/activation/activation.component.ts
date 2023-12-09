@@ -10,18 +10,21 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ActivationComponent {
 
+  info: string = '';
+
   constructor(private authService: AuthService, private activatedRoute: ActivatedRoute) { }
 
   activate() {
     const uid = this.activatedRoute.snapshot.paramMap.get('uid') as string;
     const token = this.activatedRoute.snapshot.paramMap.get('token') as string;
 
+    this.info = '';
     this.authService.activate(uid, token).subscribe({
       next: (data) => {
-        console.log(data);
+        this.info = data.message;
       },
       error: (error) => {
-        console.log(error);
+        this.info = error.message;
       }
     });
   }

@@ -1,8 +1,7 @@
 export interface UserProfile {
-    user_id: number,
-    username: string,
+    id: number,
     email: string,
-    first_name: string,
-    last_name: string,
-    profile_picture: string
+    name: string,
+    surname: string,
+    picture: string
 }
