@@ -27,6 +27,13 @@
     width: 90%;
 }
 
+.top-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .tags {
     display: flex;
     flex-direction: row;
@@ -90,5 +97,15 @@
 }
 
 .requests-tools {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
 
+.queryResult {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }

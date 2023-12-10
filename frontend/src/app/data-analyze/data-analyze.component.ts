@@ -1,8 +1,9 @@
 import { Component, ViewChild } from '@angular/core';
 import { AnalyzeDataService } from '../services/analyzedata.service';
-import { Stream, Tag, Type } from './sketches';
-import { FormControl } from '@angular/forms';
-import { RequestCreatorComponent } from './request-creator/request-creator.component';
+import { ChartPoint, Stream, Tag, Type } from './sketches';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { RequestCreatorComponent, RequestNodeType } from './request-creator/request-creator.component';
+import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'app-data-analyze',
@@ -17,12 +18,23 @@ export class DataAnalyzeComponent {
   types: Type[] = [];
 
   newOperands: string[] = [];
+  queryIsValid: boolean = true;
+  showSpinner: boolean = false;
+  showChart: boolean = true;
 
-  constructor(private analyzeDataService: AnalyzeDataService) {
+  saveResultForm: FormGroup;
+  saveResultFormErrorMessages = '';
+
+  constructor(private analyzeDataService: AnalyzeDataService, private formBuilder: FormBuilder) {
     this.analyzeDataService.getStreams().subscribe((data: any) => {
       this.streams = data.map((stream: Stream) => {
         return { stream: stream, selected: false };
       });
+    });
+
+    this.saveResultForm = this.formBuilder.group({
+      title: ['', Validators.required],
+      description: ['', Validators.required],
     });
   }
 
@@ -54,6 +66,61 @@ export class DataAnalyzeComponent {
     this.newOperands = tags.map(t => t.name);
   }
 
+  clearCanvas() {
+    this.requestCreator?.initialize();
+  }
+
+  visualizeQuery() {
+    const query = this.requestCreator?.getQuery();
+    const queryIsValid = query !== undefined && this.checkCompletion(query);
+    if (!queryIsValid) {
+      this.queryIsValid = false;
+      this.showChart = false;
+      return;
+    }
+    else {
+      this.queryIsValid = true;
+      const queryAsString = JSON.stringify(query);
+
+      this.showSpinner = true;
+
+      this.analyzeDataService.processQuery(queryAsString).subscribe((queryId: number) => {
+        this.analyzeDataService.getQuery(queryId, '2020-01-01', '2020-01-31', 'day').subscribe((points: any) => {
+          console.log(points);
+          this.showSpinner = false;
+
+          this.generateChart(points);
+          this.showChart = true;
+        });
+      });
+    }
+  }
+
+  save() {
+    if (this.saveResultForm.valid) {
+      const title = this.saveResultForm.get('title')!.value as string;
+      const description = this.saveResultForm.get('description')!.value as string;
+      if (title.length < 5) {
+        this.saveResultFormErrorMessages = 'Title must be at least 5 characters long.';
+      }
+      else if (description.length < 10) {
+        this.saveResultFormErrorMessages = 'Description must be at least 10 characters long.';
+      }
+      else if (title.length > 50) {
+        this.saveResultFormErrorMessages = 'Title must be at most 50 characters long.';
+      }
+      else if (description.length > 200) {
+        this.saveResultFormErrorMessages = 'Description must be at most 200 characters long.';
+      }
+      else {
+        this.saveResultFormErrorMessages = '';
+      }
+    }
+    else {
+      this.saveResultFormErrorMessages = 'Title and description are required.';
+    }
+  }
+
   private divideTagsByCategory(tags: Tag[]): Tag[][] {
     const divided: { [key: string]: Tag[] } = {};
     tags.forEach((tag) => {
@@ -66,5 +133,28 @@ export class DataAnalyzeComponent {
     });
 
     return Object.values(divided);
+  }
+
+  private checkCompletion(queryNode: any): boolean {
+    if (queryNode.type === RequestNodeType.FUNCTION) {
+      if (queryNode.right === 'NULL') {
+        return false;
+      }
+      return this.checkCompletion(queryNode.right);
+    }
+    else if (queryNode.type === RequestNodeType.OPERAND) {
+      return true;
+    }
+    else if (queryNode.type === RequestNodeType.OPERATOR) {
+      if (queryNode.right === 'NULL' || queryNode.left === 'NULL') {
+        return false;
+      }
+      return this.checkCompletion(queryNode.right) && this.checkCompletion(queryNode.left);
+    }
+    return false;
+  }
+
+  private generateChart(data: ChartPoint[]): void {
+
   }
 }

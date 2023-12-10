@@ -21,15 +21,35 @@
         </div>
     </mat-card>
     <mat-card class="middle-requests-card">
-        <h3>Build Query:</h3>
+        <div class="top-row">
+            <h3>Build Query:</h3> <button mat-icon-button (click)="clearCanvas()"><mat-icon>delete</mat-icon></button>
+        </div>
         <mat-card-content class="requests-sandbox">
             <app-request-creator #requestCreatorComponentRef [newOperands]="newOperands"></app-request-creator>
         </mat-card-content>
     </mat-card>
     <mat-card class="bottom-requests-card">
-        <h3>Visualize Query:</h3>
+        <div class="top-row">
+            <h3>Visualize Query:</h3> <button mat-icon-button (click)="visualizeQuery()"><mat-icon>play_arrow</mat-icon></button>
+        </div>
         <mat-card-content class="requests-tools">
-            
+            <mat-error *ngIf="!queryIsValid" type="warn">Query Is Invalid. Fill In All The Blanks!</mat-error>
+            <mat-spinner *ngIf="showSpinner"></mat-spinner>
+            <div *ngIf="showChart" class="queryResult">
+                <div class="ct-chart"></div>
+                <form [formGroup]="saveResultForm" (ngSubmit)="save()">
+                    <mat-form-field>
+                        <mat-label>Enter Title</mat-label>
+                        <input matInput formControlName="title">
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Enter Description</mat-label>
+                        <textarea matInput formControlName="description"></textarea>
+                    </mat-form-field>
+                    <button mat-flat-button type="submit" color="primary">Save Result</button>
+                    <mat-error *ngIf="saveResultFormErrorMessages != ''">{{saveResultFormErrorMessages}}</mat-error>
+                </form>
+            </div>
         </mat-card-content>
     </mat-card>
 </div>

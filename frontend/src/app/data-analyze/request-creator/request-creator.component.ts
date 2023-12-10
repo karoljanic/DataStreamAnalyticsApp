@@ -1,18 +1,19 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { ThemePalette } from '@angular/material/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Stage } from 'konva/lib/Stage';
 import { Group } from 'konva/lib/Group';
 import { Layer } from 'konva/lib/Layer';
 import { Rect } from 'konva/lib/shapes/Rect';
 import { Text } from 'konva/lib/shapes/Text';
 import { KonvaEventObject } from 'konva/lib/Node';
+import { LocalStorageService } from 'src/app/services/localstorage.service';
 
-enum RequestNodeType {
+export enum RequestNodeType {
   OPERAND,
   OPERATOR,
   ARGUMENT,
   LEFT_ARGUMENT,
-  RIGHT_ARGUMENT
+  RIGHT_ARGUMENT,
+  FUNCTION
 }
 
 type RequestNodeInfo = {
@@ -23,7 +24,7 @@ type RequestNodeInfo = {
   container: Rect | null,
   leftEmptyArgument: Rect | null,
   rightEmptyArgument: Rect | null,
-  label: Text | null,
+  label: Text | null
 };
 
 type RequestNode = Rect | Group;
@@ -35,11 +36,17 @@ type RequestNode = Rect | Group;
 })
 export class RequestCreatorComponent implements OnChanges {
   @Input() newOperands: string[] = [];
-  @Output() notify: EventEmitter<string> = new EventEmitter<string>();
 
   operators: string[] = ['AND', 'OR', 'NOT', 'XOR', 'WITHOUT'];
+  generators: Map<string, [number, number]> = new Map();
 
-  private textSize: number = 18;  // in px
+  private primaryColor: string = 'red';
+  private secondaryColor: string = 'blue';
+  private tertiaryColor: string = 'white';
+  private quaternaryColor: string = 'gray';
+  private quinaryColor: string = 'violet';
+  private textSize: number = 16;  // in px
+  private textColor: string = 'yellow';
   private internalPadding: number = 8;  // in px
 
   private stage: Stage | null = null;
@@ -47,18 +54,25 @@ export class RequestCreatorComponent implements OnChanges {
   private frontLayer: Layer | null = null;
   private currentDragStart: any = undefined;
   private currentDragTarget: any = undefined;
+  private queryHandler: RequestNode | undefined;
 
-  constructor(private el: ElementRef) { }
+  constructor(private elem: ElementRef, private localStorage: LocalStorageService) {
+    // set default colors base on current theme
+  }
+
+  ngAfterViewInit(): void {
+    this.initialize();
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     for (const operand of this.newOperands) {
-      this.createOperand(operand);
+      this.createOperand(operand, this.secondaryColor);
     }
   }
 
   initialize(): void {
-    const width = this.el.nativeElement.offsetWidth;
-    const height = this.el.nativeElement.offsetHeight;
+    const width = this.elem.nativeElement.offsetWidth;
+    const height = this.elem.nativeElement.offsetHeight;
 
     this.stage = new Stage({
       container: 'konva-container',
@@ -72,10 +86,34 @@ export class RequestCreatorComponent implements OnChanges {
     this.stage.add(this.frontLayer);
 
     this.stage.draw();
+
+    const operatorGenerators = [];
+    var totalWidth = 0;
+    for (const operator in this.operators) {
+      const node = this.createOperator(this.operators[operator], true);
+      operatorGenerators.push(node);
+      totalWidth += node.getClientRect().width;
+    }
+
+    const space = (width - totalWidth) / (operatorGenerators.length + 1);
+    for (var i = 0; i < operatorGenerators.length; i++) {
+      const x = space * (i + 1) + totalWidth / operatorGenerators.length * i;
+      const y = this.internalPadding;
+      operatorGenerators[i].setAttr('x', x);
+      operatorGenerators[i].setAttr('y', y);
+      this.generators.set(this.operators[i], [x, y]);
+    }
+
+    this.queryHandler = this.generateQueryHandler();
+    this.queryHandler.setAttr('x', width / 3);
+    this.queryHandler.setAttr('y', height / 3);
   }
 
+  getQuery(): object {
+    return this.convertToJson(this.queryHandler!);
+  }
 
-  private createOperand(operand: string): RequestNode {
+  private createOperand(operand: string, color: string): RequestNode {
     const operandLabel = this.createText(operand, false);
 
     const operandLabelWidth = operandLabel.width();
@@ -84,7 +122,7 @@ export class RequestCreatorComponent implements OnChanges {
     const operandOvalWidth = operandLabelWidth + 2 * this.internalPadding;
     const operandOvalHeight = operandLabelHeight + this.internalPadding;
 
-    const operandOval = this.createOval(operandOvalWidth, operandOvalHeight, false);
+    const operandOval = this.createOval(operandOvalWidth, operandOvalHeight, color, false);
 
     operandLabel.setAttr('offsetX', -this.internalPadding);
     operandLabel.setAttr('offsetY', -this.internalPadding / 2);
@@ -115,7 +153,7 @@ export class RequestCreatorComponent implements OnChanges {
     return operandGroup;
   }
 
-  private createArgument(): Rect {
+  private createArgument(color: string): Rect {
     const argumentLabel = this.createText('   ', false);
 
     const operandLabelWidth = argumentLabel.width();
@@ -124,7 +162,7 @@ export class RequestCreatorComponent implements OnChanges {
     const operandOvalWidth = operandLabelWidth + 2 * this.internalPadding;
     const operandOvalHeight = operandLabelHeight + this.internalPadding;
 
-    const operandOval = this.createOval(operandOvalWidth, operandOvalHeight, false);
+    const operandOval = this.createOval(operandOvalWidth, operandOvalHeight, color, false);
 
     this.backLayer!.add(operandOval);
 
@@ -147,9 +185,9 @@ export class RequestCreatorComponent implements OnChanges {
     return operandOval;
   }
 
-  private createOperator(operator: string): RequestNode {
-    const leftArgument = this.createArgument();
-    const rightArgument = this.createArgument();
+  private createOperator(operator: string, isGenerator: boolean): RequestNode {
+    const leftArgument = this.createArgument(this.tertiaryColor);
+    const rightArgument = this.createArgument(this.tertiaryColor);
 
     leftArgument.setAttr('x', 0);
     leftArgument.setAttr('y', 0);
@@ -158,7 +196,7 @@ export class RequestCreatorComponent implements OnChanges {
     rightArgument.setAttr('y', 0);
 
     const operatorLabel = this.createText(operator, false);
-    const operatorOval = this.createOval(0, 0, false);
+    const operatorOval = this.createOval(0, 0, this.primaryColor, false);
     const operatorGroup = this.createGroup(true);
 
     operatorGroup.add(operatorOval);
@@ -174,7 +212,13 @@ export class RequestCreatorComponent implements OnChanges {
 
     this.backLayer!.add(operatorGroup);
 
-    operatorGroup.on('dragstart', this.handleDragstart.bind(this));
+    if (isGenerator) {
+      operatorGroup.on('dragstart', this.handleGeneratorDragstart.bind(this));
+    }
+    else {
+      operatorGroup.on('dragstart', this.handleDragstart.bind(this));
+    }
+
     operatorGroup.on('dragend', this.handleDragend.bind(this));
     operatorGroup.on('dragmove', this.handleDragmove.bind(this));
     operatorGroup.on('dblclick', () => { console.log(this.convertToJson(operatorGroup)); });
@@ -196,54 +240,128 @@ export class RequestCreatorComponent implements OnChanges {
     return operatorGroup;
   }
 
+  private generateQueryHandler(): RequestNode {
+    const argument = this.createArgument(this.tertiaryColor);
+
+    argument.setAttr('x', 0);
+    argument.setAttr('y', 0);
+
+    const funLabel = this.createText('QUERY', false);
+    const funRectangle = this.createRectangle(0, 0, this.quinaryColor, false);
+    const funGroup = this.createGroup(true);
+
+    funGroup.add(funRectangle);
+    funGroup.add(argument);
+    funGroup.add(funLabel);
+
+    (argument.getAttr('metadata') as RequestNodeInfo).type = RequestNodeType.RIGHT_ARGUMENT;
+    (argument.getAttr('metadata') as RequestNodeInfo).parent = funGroup;
+
+    this.backLayer!.add(funGroup);
+
+    const nodeInfo: RequestNodeInfo = {
+      type: RequestNodeType.FUNCTION,
+      parent: null,
+      leftChild: null,
+      rightChild: null,
+      container: funRectangle,
+      leftEmptyArgument: null,
+      rightEmptyArgument: argument,
+      label: funLabel
+    };
+    funGroup.setAttr('metadata', nodeInfo);
+
+    this.redrawOperatorNode(funGroup);
+
+    return funGroup;
+  }
+
   private redrawOperatorNode(node: Group): void {
     const nodeInfo = node.getAttr('metadata') as RequestNodeInfo;
 
-    const leftArgument: RequestNode = nodeInfo.leftChild !== null ? nodeInfo.leftChild : nodeInfo.leftEmptyArgument!;
-    const rightArgument: RequestNode = nodeInfo.rightChild !== null ? nodeInfo.rightChild : nodeInfo.rightEmptyArgument!;
+    if (nodeInfo.type === RequestNodeType.FUNCTION) {
+      const argument: RequestNode = nodeInfo.rightChild !== null ? nodeInfo.rightChild : nodeInfo.rightEmptyArgument!;
+      const argumentWidth = argument.getClientRect().width;
+      const argumentHeight = argument.getClientRect().height;
+      const funLabelWidth = nodeInfo.label!.width();
+      const funLabelHeight = nodeInfo.label!.height();
+      const funRectangleWidth = argumentWidth + funLabelWidth + 4 * this.internalPadding;
+      const funRectangleHeight = Math.max(argumentHeight, funLabelHeight) + this.internalPadding;
 
-    const leftArgumentWidth = leftArgument.getClientRect().width;
-    const leftArgumentHeight = leftArgument.getClientRect().height;
+      nodeInfo.container!.setAttr('width', funRectangleWidth);
+      nodeInfo.container!.setAttr('height', funRectangleHeight);
+      nodeInfo.container!.setAttr('cornerRadius', funRectangleHeight / 4);
 
-    const rightArgumentWidth = rightArgument.getClientRect().width;
-    const rightArgumentHeight = rightArgument.getClientRect().height;
+      nodeInfo.label!.setAttr('offsetX', -(2 * this.internalPadding));
+      nodeInfo.label!.setAttr('offsetY', -(funRectangleHeight - funLabelHeight) / 2);
 
-    const operatorLabelWidth = nodeInfo.label!.width();
-    const operatorLabelHeight = nodeInfo.label!.height();
+      argument.setAttr('x', 0);
+      argument.setAttr('y', 0);
+      argument.setAttr('offsetX', -(funRectangleWidth - this.internalPadding - argumentWidth));
+      argument.setAttr('offsetY', -(funRectangleHeight - argumentHeight) / 2);
+    }
+    else {
+      const leftArgument: RequestNode = nodeInfo.leftChild !== null ? nodeInfo.leftChild : nodeInfo.leftEmptyArgument!;
+      const rightArgument: RequestNode = nodeInfo.rightChild !== null ? nodeInfo.rightChild : nodeInfo.rightEmptyArgument!;
 
-    const operatorOvalWidth = operatorLabelWidth + leftArgumentWidth + rightArgumentWidth + 4 * this.internalPadding;
-    const operatorOvalHeight = Math.max(operatorLabelHeight, leftArgumentHeight, rightArgumentHeight) + this.internalPadding;
+      const leftArgumentWidth = leftArgument.getClientRect().width;
+      const leftArgumentHeight = leftArgument.getClientRect().height;
 
-    nodeInfo.container!.setAttr('width', operatorOvalWidth);
-    nodeInfo.container!.setAttr('height', operatorOvalHeight);
-    nodeInfo.container!.setAttr('cornerRadius', operatorOvalHeight / 2);
+      const rightArgumentWidth = rightArgument.getClientRect().width;
+      const rightArgumentHeight = rightArgument.getClientRect().height;
 
-    nodeInfo.label!.setAttr('offsetX', -(2 * this.internalPadding + leftArgumentWidth));
-    nodeInfo.label!.setAttr('offsetY', -(operatorOvalHeight - operatorLabelHeight) / 2);
+      const operatorLabelWidth = nodeInfo.label!.width();
+      const operatorLabelHeight = nodeInfo.label!.height();
 
-    leftArgument.setAttr('x', 0);
-    leftArgument.setAttr('y', 0);
-    leftArgument.setAttr('offsetX', -this.internalPadding);
-    leftArgument.setAttr('offsetY', -(operatorOvalHeight - leftArgumentHeight) / 2);
+      const operatorOvalWidth = operatorLabelWidth + leftArgumentWidth + rightArgumentWidth + 4 * this.internalPadding;
+      const operatorOvalHeight = Math.max(operatorLabelHeight, leftArgumentHeight, rightArgumentHeight) + this.internalPadding;
 
-    rightArgument.setAttr('x', 0);
-    rightArgument.setAttr('y', 0);
-    rightArgument.setAttr('offsetX', -(operatorOvalWidth - this.internalPadding - rightArgumentWidth));
-    rightArgument.setAttr('offsetY', -(operatorOvalHeight - rightArgumentHeight) / 2);
+      nodeInfo.container!.setAttr('width', operatorOvalWidth);
+      nodeInfo.container!.setAttr('height', operatorOvalHeight);
+      nodeInfo.container!.setAttr('cornerRadius', operatorOvalHeight / 2);
 
-    const nodeParent = (node.getAttr('metadata') as RequestNodeInfo).parent;
-    if (nodeParent !== null) {
-      this.redrawOperatorNode(nodeParent as Group);
+      nodeInfo.label!.setAttr('offsetX', -(2 * this.internalPadding + leftArgumentWidth));
+      nodeInfo.label!.setAttr('offsetY', -(operatorOvalHeight - operatorLabelHeight) / 2);
+
+      leftArgument.setAttr('x', 0);
+      leftArgument.setAttr('y', 0);
+      leftArgument.setAttr('offsetX', -this.internalPadding);
+      leftArgument.setAttr('offsetY', -(operatorOvalHeight - leftArgumentHeight) / 2);
+
+      rightArgument.setAttr('x', 0);
+      rightArgument.setAttr('y', 0);
+      rightArgument.setAttr('offsetX', -(operatorOvalWidth - this.internalPadding - rightArgumentWidth));
+      rightArgument.setAttr('offsetY', -(operatorOvalHeight - rightArgumentHeight) / 2);
+
+      const nodeParent = (node.getAttr('metadata') as RequestNodeInfo).parent;
+      if (nodeParent !== null) {
+        this.redrawOperatorNode(nodeParent as Group);
+      }
     }
   }
 
-  private createOval(width: number, height: number, draggable: boolean): Rect {
+  private createOval(width: number, height: number, fillColor: string, draggable: boolean): Rect {
     return new Rect({
       x: 0,
       y: 0,
       width: width,
       height: height,
       cornerRadius: height / 2,
+      fill: fillColor,
+      strokeWidth: 0.1,
+      stroke: "black",
+      draggable: draggable
+    });
+  }
+
+  private createRectangle(width: number, height: number, fillColor: string, draggable: boolean): Rect {
+    return new Rect({
+      x: 0,
+      y: 0,
+      width: width,
+      height: height,
+      cornerRadius: height / 4,
+      fill: fillColor,
       strokeWidth: 0.1,
       stroke: "black",
       draggable: draggable
@@ -256,8 +374,7 @@ export class RequestCreatorComponent implements OnChanges {
       y: 0,
       text: text,
       fontSize: this.textSize,
-      //fontFamily: this.textFont,
-      //fill: this.textColor,
+      fill: this.textColor,
       draggable: draggable
     });
   }
@@ -271,6 +388,20 @@ export class RequestCreatorComponent implements OnChanges {
   }
 
   private handleDragstart(e: KonvaEventObject<DragEvent>): void {
+    e.target.moveTo(this.frontLayer);
+    this.currentDragStart = e.target;
+  }
+
+  private handleGeneratorDragstart(e: KonvaEventObject<DragEvent>): void {
+    const operator = e.target;
+    const operatorText = operator.getAttr('metadata')?.label?.text();
+    const operatorCopy = this.createOperator(operatorText, true);
+    const operatorCopyCoords = this.generators.get(operatorText) as [number, number];
+    operatorCopy.setAttr('x', operatorCopyCoords[0]);
+    operatorCopy.setAttr('y', operatorCopyCoords[1]);
+
+    operator.on('dragstart', this.handleDragstart.bind(this));
+
     e.target.moveTo(this.frontLayer);
     this.currentDragStart = e.target;
   }
@@ -294,15 +425,15 @@ export class RequestCreatorComponent implements OnChanges {
   }
 
   private handleDragenter(e: KonvaEventObject<DragEvent>): void {
-    //(e.target as any).fill(this.quaternaryColor);
+    (e.target as any).fill(this.quaternaryColor);
   }
 
   private handleDragleave(e: KonvaEventObject<DragEvent>): void {
-    //(e.target as any).fill(this.tertiaryColor);
+    (e.target as any).fill(this.tertiaryColor);
   }
 
   private handleDrop(e: KonvaEventObject<DragEvent>): void {
-    //(e.target as any).fill(this.tertiaryColor);
+    (e.target as any).fill(this.tertiaryColor);
     setTimeout(() => {
       this.detachChild(this.currentDragStart);
       this.attachChild(e.target as RequestNode, this.currentDragStart);
@@ -382,7 +513,8 @@ export class RequestCreatorComponent implements OnChanges {
     return {
       left: left,
       right: right,
-      value: value
+      value: value,
+      type: nodeInfo.type
     };
   }
 }

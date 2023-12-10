@@ -22,23 +22,24 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProfileComponent } from './profile/profile.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
 import { RequestCreatorComponent } from './data-analyze/request-creator/request-creator.component';
 import { DataAnalyzeComponent } from './data-analyze/data-analyze.component';
-import { StyleManagerService } from './services/stylemanager.service';
-import { LocalStorageService } from './services/localstorage.service';
-import { AnalyzeDataService } from './services/analyzedata.service';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { AuthService } from './services/auth.service';
-import { TokenInterceptor } from './token.interceptor';
 import { AuthRequiredComponent } from './auth-required/auth-required.component';
 import { ActivationComponent } from './activation/activation.component';
 import { ChangeNameComponent } from './profile/change-name/change-name.component';
 import { ChangeSurnameComponent } from './profile/change-surname/change-surname.component';
 import { ChangePictureComponent } from './profile/change-picture/change-picture.component';
 import { DeleteAccountComponent } from './profile/delete-account/delete-account.component';
+import { StyleManagerService } from './services/stylemanager.service';
+import { LocalStorageService } from './services/localstorage.service';
+import { AnalyzeDataService } from './services/analyzedata.service';
+import { AuthService } from './services/auth.service';
+import { TokenInterceptor } from './token.interceptor';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -76,7 +77,8 @@ import { DeleteAccountComponent } from './profile/delete-account/delete-account.
     MatSnackBarModule,
     MatChipsModule,
     MatSelectModule,
-    MatDialogModule
+    MatDialogModule,
+    MatProgressSpinnerModule
   ],
   providers: [
     LocalStorageService,

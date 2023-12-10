@@ -13,3 +13,8 @@ export interface Type {
     id: number;
     name: string;
 }
+
+export interface ChartPoint {
+    data: number;
+    value: number;
+}
