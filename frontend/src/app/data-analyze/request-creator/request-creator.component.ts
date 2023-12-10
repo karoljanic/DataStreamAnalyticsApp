@@ -1,4 +1,5 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { ThemePalette } from '@angular/material/core';
 import { Stage } from 'konva/lib/Stage';
 import { Group } from 'konva/lib/Group';
 import { Layer } from 'konva/lib/Layer';
@@ -32,54 +33,36 @@ type RequestNode = Rect | Group;
   templateUrl: './request-creator.component.html',
   styleUrls: ['./request-creator.component.scss'],
 })
-export class RequestCreatorComponent implements AfterViewInit {
-  private operands: string[] = [];
-  private operators: string[] = [];
-  private primaryColor: string = '';
-  private secondaryColor: string = '';
-  private tertiaryColor: string = '';
-  private quaternaryColor: string = '';
-  private textFont: string = '';
-  private textSize: number = 0;
-  private textColor: string = '';
-  private internalPadding: number = 0;
+export class RequestCreatorComponent implements AfterViewInit, OnChanges {
+  @Input() operands: string[] = [];
+  @Input() operators: string[] = [];
+  @Output() notify: EventEmitter<string> = new EventEmitter<string>();
+
+  private primaryColor: string = 'red';
+  private secondaryColor: string = 'blue';
+  private tertiaryColor: string = 'white';
+  private quaternaryColor: string = 'gray';
+  //private textFont: string = '';
+  private textSize: number = 16;  // in px
+  private textColor: string = 'yellow';
+  private internalPadding: number = 8;  // in px
+
   private stage: Stage | null = null;
   private backLayer: Layer | null = null;
   private frontLayer: Layer | null = null;
   private currentDragStart: any = undefined;
   private currentDragTarget: any = undefined;
 
+  constructor(private el: ElementRef) { }
+
   ngAfterViewInit(): void {
-    this.initializeRequestCreator(1000, 500, 'konva-container', ['teal', 'aqua', 'white', '#dcdcdc'], 'verdana', 20, 'black', 10, ['a', 'def', '123', 'xyzyx'], ['$', '&&', 'modulo']);
-
-    for (const operand of this.operands) {
-      this.createOperand(operand, this.secondaryColor);
-    }
-
-    for (const operator of this.operators) {
-      this.createOperator(operator);
-    }
-  }
-
-  initializeRequestCreator(areaWidth: number, areaHeight: number, containerId: string,
-    colors: string[], textFont: string, textSize: number, textColor: string,
-    internalPadding: number, operands: string[], operators: string[]): void {
-
-    this.primaryColor = colors[0];
-    this.secondaryColor = colors[1];
-    this.tertiaryColor = colors[2];
-    this.quaternaryColor = colors[3];
-    this.textFont = textFont;
-    this.textSize = textSize;
-    this.textColor = textColor;
-    this.internalPadding = internalPadding;
-    this.operands = operands;
-    this.operators = operators;
+    const width = this.el.nativeElement.offsetWidth;
+    const height = this.el.nativeElement.offsetHeight;
 
     this.stage = new Stage({
-      container: containerId,
-      width: areaWidth,
-      height: areaHeight
+      container: 'konva-container',
+      width: width,
+      height: height
     });
 
     this.backLayer = new Layer();
@@ -88,6 +71,11 @@ export class RequestCreatorComponent implements AfterViewInit {
     this.stage.add(this.frontLayer);
 
     this.stage.draw();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    console.log(this.operands);
+    console.log(this.operators);
   }
 
   private createOperand(operand: string, color: string): RequestNode {
@@ -272,7 +260,7 @@ export class RequestCreatorComponent implements AfterViewInit {
       y: 0,
       text: text,
       fontSize: this.textSize,
-      fontFamily: this.textFont,
+      //fontFamily: this.textFont,
       fill: this.textColor,
       draggable: draggable
     });

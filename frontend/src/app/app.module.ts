@@ -19,6 +19,8 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule } from '@angular/material/dialog';
 import { ProfileComponent } from './profile/profile.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
@@ -32,6 +34,10 @@ import { AuthService } from './services/auth.service';
 import { TokenInterceptor } from './token.interceptor';
 import { AuthRequiredComponent } from './auth-required/auth-required.component';
 import { ActivationComponent } from './activation/activation.component';
+import { ChangeNameComponent } from './profile/change-name/change-name.component';
+import { ChangeSurnameComponent } from './profile/change-surname/change-surname.component';
+import { ChangePictureComponent } from './profile/change-picture/change-picture.component';
+import { DeleteAccountComponent } from './profile/delete-account/delete-account.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +48,11 @@ import { ActivationComponent } from './activation/activation.component';
     DataAnalyzeComponent,
     RequestCreatorComponent,
     AuthRequiredComponent,
-    ActivationComponent
+    ActivationComponent,
+    ChangeNameComponent,
+    ChangeSurnameComponent,
+    ChangePictureComponent,
+    DeleteAccountComponent
   ],
   imports: [
     AppRoutingModule,
@@ -62,7 +72,9 @@ import { ActivationComponent } from './activation/activation.component';
     MatCardModule,
     MatFormFieldModule,
     FormsModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatChipsModule,
+    MatDialogModule
   ],
   providers: [
     LocalStorageService,

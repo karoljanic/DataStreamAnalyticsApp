@@ -8,19 +8,24 @@ import { UserProfile } from "../profile/user-profile";
 })
 export class UserProfileService {
     private static profileUri = '/api/users/';
+    private static uploadImageUri = '/api/users/upload-image';
 
     constructor(private http: HttpClient) { }
 
-    getUserProfile(id: string | null): Observable<UserProfile> {
+    getUserProfile(id: string): Observable<UserProfile> {
         return this.http.get<UserProfile>(UserProfileService.profileUri + id);
     }
 
-    updateUserProfile(id: string | null, data: UserProfile): Observable<UserProfile> {
-        return this.http.put<UserProfile>(UserProfileService.profileUri + id, data);
+    updateUserProfile(data: UserProfile): Observable<UserProfile> {
+        return this.http.patch<UserProfile>(UserProfileService.profileUri + data.id + '/', data);
     }
 
-    deleteUserProfile(id: string | null): Observable<UserProfile> {
+    deleteUserProfile(id: number): Observable<UserProfile> {
         return this.http.delete<UserProfile>(UserProfileService.profileUri + id);
+    }
+
+    uploadImage(image: any): Observable<any> {
+        return this.http.post<any>(UserProfileService.uploadImageUri, image);
     }
 
 }

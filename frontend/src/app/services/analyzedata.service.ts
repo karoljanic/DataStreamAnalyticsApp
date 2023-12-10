@@ -15,11 +15,11 @@ export class AnalyzeDataService {
         return this.http.get(AnalyzeDataService.streamsApiUri);
     }
 
-    getTags(streamId: string) {
+    getTags(streamId: number) {
         return this.http.post(AnalyzeDataService.tagsApiUri, { streamId });
     }
 
-    getTypes(streamId: string) {
+    getTypes(streamId: number) {
         return this.http.post(AnalyzeDataService.typesApiUri, { streamId });
     }
 }

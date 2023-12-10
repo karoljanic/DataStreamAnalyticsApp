@@ -1,0 +1,78 @@
+.requests-container {
+    width: 100%;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.top-requests-card-stream {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    padding-top: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 90%;
+}
+
+.top-requests-card-tag {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 90%;
+}
+
+.middle-requests-card {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding-top: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 90%;
+    height: 90vh;
+}
+
+.bottom-requests-card {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    padding-top: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 90%;
+}
+
+.requests-stream-selector {
+    display: flex;
+    flex-direction: row;
+}
+
+.requests-tag-selector {
+    display: flex;
+    flex-direction: row;
+}
+
+.stream-chip {
+    margin-right: 0.5rem!important;
+    margin-left: 0.5rem!important;
+}
+
+.tag-chip {
+    margin-right: 0.5rem!important;
+    margin-left: 0.5rem!important;
+}
+
+.requests-sandbox {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+.requests-tools {
+
+}

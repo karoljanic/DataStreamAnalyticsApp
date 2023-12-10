@@ -3,5 +3,5 @@ export interface UserProfile {
     email: string,
     name: string,
     surname: string,
-    picture: string
+    picture: any,
 }

@@ -46,7 +46,7 @@ def make_expr_from_tree(tree):
         return ~make_expr_from_tree(tree['left'])
     elif tree['value'] == 'XOR':
         return  make_expr_from_tree(tree['left']) ^  make_expr_from_tree(tree['right'])
-    elif tree['value'] == 'SUB':
+    elif tree['value'] == 'WITHOUT':
         return  make_expr_from_tree(tree['left']) & (~make_expr_from_tree(tree['right']))
     else:
         raise ValueError("Invalid operator: " + tree['value'])
