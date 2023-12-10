@@ -20,6 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ProfileComponent } from './profile/profile.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -74,6 +75,7 @@ import { DeleteAccountComponent } from './profile/delete-account/delete-account.
     FormsModule,
     MatSnackBarModule,
     MatChipsModule,
+    MatSelectModule,
     MatDialogModule
   ],
   providers: [

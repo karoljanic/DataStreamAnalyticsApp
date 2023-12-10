@@ -33,18 +33,13 @@ type RequestNode = Rect | Group;
   templateUrl: './request-creator.component.html',
   styleUrls: ['./request-creator.component.scss'],
 })
-export class RequestCreatorComponent implements AfterViewInit, OnChanges {
-  @Input() operands: string[] = [];
-  @Input() operators: string[] = [];
+export class RequestCreatorComponent implements OnChanges {
+  @Input() newOperands: string[] = [];
   @Output() notify: EventEmitter<string> = new EventEmitter<string>();
 
-  private primaryColor: string = 'red';
-  private secondaryColor: string = 'blue';
-  private tertiaryColor: string = 'white';
-  private quaternaryColor: string = 'gray';
-  //private textFont: string = '';
-  private textSize: number = 16;  // in px
-  private textColor: string = 'yellow';
+  operators: string[] = ['AND', 'OR', 'NOT', 'XOR', 'WITHOUT'];
+
+  private textSize: number = 18;  // in px
   private internalPadding: number = 8;  // in px
 
   private stage: Stage | null = null;
@@ -55,7 +50,13 @@ export class RequestCreatorComponent implements AfterViewInit, OnChanges {
 
   constructor(private el: ElementRef) { }
 
-  ngAfterViewInit(): void {
+  ngOnChanges(changes: SimpleChanges) {
+    for (const operand of this.newOperands) {
+      this.createOperand(operand);
+    }
+  }
+
+  initialize(): void {
     const width = this.el.nativeElement.offsetWidth;
     const height = this.el.nativeElement.offsetHeight;
 
@@ -73,12 +74,8 @@ export class RequestCreatorComponent implements AfterViewInit, OnChanges {
     this.stage.draw();
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    console.log(this.operands);
-    console.log(this.operators);
-  }
 
-  private createOperand(operand: string, color: string): RequestNode {
+  private createOperand(operand: string): RequestNode {
     const operandLabel = this.createText(operand, false);
 
     const operandLabelWidth = operandLabel.width();
@@ -87,7 +84,7 @@ export class RequestCreatorComponent implements AfterViewInit, OnChanges {
     const operandOvalWidth = operandLabelWidth + 2 * this.internalPadding;
     const operandOvalHeight = operandLabelHeight + this.internalPadding;
 
-    const operandOval = this.createOval(operandOvalWidth, operandOvalHeight, color, false);
+    const operandOval = this.createOval(operandOvalWidth, operandOvalHeight, false);
 
     operandLabel.setAttr('offsetX', -this.internalPadding);
     operandLabel.setAttr('offsetY', -this.internalPadding / 2);
@@ -118,7 +115,7 @@ export class RequestCreatorComponent implements AfterViewInit, OnChanges {
     return operandGroup;
   }
 
-  private createArgument(color: string): Rect {
+  private createArgument(): Rect {
     const argumentLabel = this.createText('   ', false);
 
     const operandLabelWidth = argumentLabel.width();
@@ -127,7 +124,7 @@ export class RequestCreatorComponent implements AfterViewInit, OnChanges {
     const operandOvalWidth = operandLabelWidth + 2 * this.internalPadding;
     const operandOvalHeight = operandLabelHeight + this.internalPadding;
 
-    const operandOval = this.createOval(operandOvalWidth, operandOvalHeight, color, false);
+    const operandOval = this.createOval(operandOvalWidth, operandOvalHeight, false);
 
     this.backLayer!.add(operandOval);
 
@@ -151,8 +148,8 @@ export class RequestCreatorComponent implements AfterViewInit, OnChanges {
   }
 
   private createOperator(operator: string): RequestNode {
-    const leftArgument = this.createArgument(this.tertiaryColor);
-    const rightArgument = this.createArgument(this.tertiaryColor);
+    const leftArgument = this.createArgument();
+    const rightArgument = this.createArgument();
 
     leftArgument.setAttr('x', 0);
     leftArgument.setAttr('y', 0);
@@ -161,7 +158,7 @@ export class RequestCreatorComponent implements AfterViewInit, OnChanges {
     rightArgument.setAttr('y', 0);
 
     const operatorLabel = this.createText(operator, false);
-    const operatorOval = this.createOval(0, 0, this.primaryColor, false);
+    const operatorOval = this.createOval(0, 0, false);
     const operatorGroup = this.createGroup(true);
 
     operatorGroup.add(operatorOval);
@@ -240,14 +237,13 @@ export class RequestCreatorComponent implements AfterViewInit, OnChanges {
     }
   }
 
-  private createOval(width: number, height: number, fillColor: string, draggable: boolean): Rect {
+  private createOval(width: number, height: number, draggable: boolean): Rect {
     return new Rect({
       x: 0,
       y: 0,
       width: width,
       height: height,
       cornerRadius: height / 2,
-      fill: fillColor,
       strokeWidth: 0.1,
       stroke: "black",
       draggable: draggable
@@ -261,7 +257,7 @@ export class RequestCreatorComponent implements AfterViewInit, OnChanges {
       text: text,
       fontSize: this.textSize,
       //fontFamily: this.textFont,
-      fill: this.textColor,
+      //fill: this.textColor,
       draggable: draggable
     });
   }
@@ -298,15 +294,15 @@ export class RequestCreatorComponent implements AfterViewInit, OnChanges {
   }
 
   private handleDragenter(e: KonvaEventObject<DragEvent>): void {
-    (e.target as any).fill(this.quaternaryColor);
+    //(e.target as any).fill(this.quaternaryColor);
   }
 
   private handleDragleave(e: KonvaEventObject<DragEvent>): void {
-    (e.target as any).fill(this.tertiaryColor);
+    //(e.target as any).fill(this.tertiaryColor);
   }
 
   private handleDrop(e: KonvaEventObject<DragEvent>): void {
-    (e.target as any).fill(this.tertiaryColor);
+    //(e.target as any).fill(this.tertiaryColor);
     setTimeout(() => {
       this.detachChild(this.currentDragStart);
       this.attachChild(e.target as RequestNode, this.currentDragStart);

@@ -2,23 +2,28 @@
     <mat-card class="top-requests-card-stream">
         <h3>Select Stream:</h3>
         <mat-card-content class="requests-stream-selector">
-            <mat-chip-listbox *ngFor="let stream of streams" aria-label="Stream Selection" (click)="streamSelected(stream)">
-                <mat-chip-option class="stream-chip">{{stream.name}}</mat-chip-option>
+            <mat-chip-listbox *ngFor="let streamObj of streams" aria-label="Stream Selection" (click)="streamSelected(streamObj)">
+                <mat-chip-option [selected]="streamObj.selected" class="stream-chip">{{streamObj.stream.name}}</mat-chip-option>
               </mat-chip-listbox>
         </mat-card-content>
     </mat-card>
     <mat-card class="top-requests-card-tag">
         <h3>Select Tags:</h3>
-        <mat-card-content class="requests-tag-selector">
-            <mat-chip-listbox *ngFor="let tag of tags" aria-label="Tag Selection" (click)="tagClicked(tag)">
-                <mat-chip-option class="tag-chip">{{tag.name}}</mat-chip-option>
-            </mat-chip-listbox>
-        </mat-card-content>
+        <div class="tags">
+            <div *ngFor="let tagObj of tags" class="tag-containter">
+                <mat-form-field>
+                    <mat-select placeholder="{{tagObj.category}}" [formControl]="tagObj.form" [(value)]="tagObj.selectedTags" multiple>
+                        <mat-option *ngFor="let tag of tagObj.allTags" [value]="tag">{{tag.name}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <button mat-flat-button color="primary" (click)="addOperands(tagObj.selectedTags)">Add Tags To Sandbox</button>
+            </div>
+        </div>
     </mat-card>
     <mat-card class="middle-requests-card">
         <h3>Build Query:</h3>
         <mat-card-content class="requests-sandbox">
-            <app-request-creator [operands]="operands" [operators]="operators"></app-request-creator>
+            <app-request-creator #requestCreatorComponentRef [newOperands]="newOperands"></app-request-creator>
         </mat-card-content>
     </mat-card>
     <mat-card class="bottom-requests-card">

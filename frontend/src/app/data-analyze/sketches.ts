@@ -6,6 +6,7 @@ export interface Stream {
 export interface Tag {
     id: number;
     name: string;
+    category: string;
 }
 
 export interface Type {

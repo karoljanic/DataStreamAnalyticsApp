@@ -48,13 +48,16 @@ export class LoginComponent implements OnInit {
 
   signUpUser(user: RegisterUserInformation): void {
     this.registerError = '';
+    this.snackBar.open("Registering user...", "Close");
     this.authService.signup(user).subscribe({
       next: (data) => {
+        this.snackBar.dismiss();
         this.snackBar.open("User registered successfully! Check your email for confirmation.", "Close");
       },
       error: (error) => {
-        console.log(error);
-        this.registerError = error['error']['message'];
+        this.snackBar.dismiss();
+        var message = error['error']['message'];
+        this.registerError = message.charAt(0).toUpperCase() + message.slice(1);
       }
     });
   }
