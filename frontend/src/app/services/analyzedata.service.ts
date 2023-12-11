@@ -50,14 +50,14 @@ export class AnalyzeDataService {
         return of(tags.filter(t => t.id % streamId == 0));
     }
 
-    getTypes(streamId: number): Observable<Type> {
+    getTypes(streamId: number): Observable<Type[]> {
         //return this.http.get<Type>(AnalyzeDataService.typesApiUri + '/' + streamId);
 
         const types: Type[] = [
-            { id: 1, name: '' },    // counting
-            { id: 2, name: 'PLN' }, // salary
+            { id: 1, name: '', description: 'Number of offers' },    // counting
+            { id: 2, name: 'PLN', description: 'Average salary' }, // salary
         ];
-        return of(types[streamId % 2]);
+        return of(types);
     }
 
     processQuery(quervalue: string): Observable<number> {

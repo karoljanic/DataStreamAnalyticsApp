@@ -12,9 +12,10 @@ export interface Tag {
 export interface Type {
     id: number;
     name: string;
+    description: string;
 }
 
 export interface ChartPoint {
-    data: number;
+    data: string;
     value: number;
 }

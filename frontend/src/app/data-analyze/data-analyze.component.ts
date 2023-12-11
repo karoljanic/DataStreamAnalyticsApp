@@ -25,6 +25,9 @@ export class DataAnalyzeComponent {
   saveResultForm: FormGroup;
   saveResultFormErrorMessages = '';
 
+  chartPoints: ChartPoint[] = [];
+  chart: Chart | undefined;
+
   constructor(private analyzeDataService: AnalyzeDataService, private formBuilder: FormBuilder) {
     this.analyzeDataService.getStreams().subscribe((data: any) => {
       this.streams = data.map((stream: Stream) => {
@@ -57,7 +60,8 @@ export class DataAnalyzeComponent {
       });
 
       this.analyzeDataService.getTypes(stream.stream.id).subscribe((data: any) => {
-        this.types = [data];
+        this.types = data;
+        console.log(this.types)
       });
     }
   }
@@ -73,6 +77,7 @@ export class DataAnalyzeComponent {
   visualizeQuery() {
     const query = this.requestCreator?.getQuery();
     const queryIsValid = query !== undefined && this.checkCompletion(query);
+
     if (!queryIsValid) {
       this.queryIsValid = false;
       this.showChart = false;
@@ -82,18 +87,23 @@ export class DataAnalyzeComponent {
       this.queryIsValid = true;
       const queryAsString = JSON.stringify(query);
 
+      this.showChart = false;
       this.showSpinner = true;
 
       this.analyzeDataService.processQuery(queryAsString).subscribe((queryId: number) => {
         this.analyzeDataService.getQuery(queryId, '2020-01-01', '2020-01-31', 'day').subscribe((points: any) => {
-          console.log(points);
+          this.chartPoints = points;
           this.showSpinner = false;
 
-          this.generateChart(points);
           this.showChart = true;
+          setTimeout(() => { this.generateChart(this.types[0]); }, 200); // waiting for contex creation
         });
       });
     }
+  }
+
+  datTypeChange(type: Type) {
+    this.generateChart(type);
   }
 
   save() {
@@ -154,7 +164,33 @@ export class DataAnalyzeComponent {
     return false;
   }
 
-  private generateChart(data: ChartPoint[]): void {
+  private generateChart(type: Type): void {
+    const datas: string[] = this.chartPoints.map((point: ChartPoint) => point.data);
+    const values: number[] = this.chartPoints.map((point: ChartPoint) => point.value);
 
+    if (this.chart !== undefined) {
+      this.chart.destroy();
+    }
+
+    this.chart = new Chart("result-char", {
+      type: 'line',
+      data: {
+        labels: datas,
+        datasets: [
+          {
+            data: values,
+          },
+        ]
+      },
+      options: {
+        maintainAspectRatio: true,
+        aspectRatio: 2,
+        responsive: false,
+        scales: {
+          y: { beginAtZero: true },
+          x: {}
+        },
+      }
+    });
   }
 }
