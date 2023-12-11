@@ -10,39 +10,37 @@ import requests
 import base64
 
 tags = [
-    "senior",
-    "java",
-    "junior",
-    "frontend",
-    ".net",
-    "devops",
-    "php",
-    "fullstack",
-    "python",
-    "remote",
-    "javascript",
-    "automation",
-    "manager",
-    "android",
-    "backend",
-    "react",
-    "analyst",
-    "ios",
-    "lead",
-    "ruby",
-    "administrator",
-    "architect",
-    "c++",
-    "angular",
-    "mid/senior",
-    "scala",
-    "web",
-    "mid",
-    "cloud",
-    "embedded",
-    "tester"
+    ["senior", "experience"],
+    ["mid", "experience"],
+    ["junior", "experience"],
+    ["manager", "experience"],
+    ["lead", "experience"],
+    ["frontend", "role"],
+    ["backend", "role"],
+    ["fullstack", "role"],
+    ["automation", "role"],
+    ["administrator", "role"],
+    ["architect", "role"],
+    ["analyst", "role"],
+    ["devops", "role"],
+    ["embedded", "role"],
+    ["tester", "role"],
+    ["c++", "technology"],
+    [".net", "technology"],
+    ["java", "technology"],
+    ["php", "technology"],
+    ["python", "technology"],
+    ["javascript", "technology"],
+    ["ruby", "technology"],
+    ["scala", "technology"],
+    ["react", "technology"],
+    ["angular", "technology"],
+    ["cloud", "technology"],
+    ["web", "technology"],
+    ["android", "technology"],
+    ["ios", "technology"],
+    ["remote", "other"],
 ]
-
 
 url = "http://127.0.0.1:8000/api/"
 streams_url = url + "streams/"
@@ -69,9 +67,11 @@ def parse_directory(directory_path):
             continue
 
         for i, tag in enumerate(tags):
+            tag_name = tag[0]
+
             datasketch = datasketches.DataSketch()
             for offer in xml_file:
-                if not tag in offer['title'].lower():
+                if not tag_name in offer['title'].lower():
                     continue
                 identifier = int(hash(offer['title']))
                 value = 1.0
@@ -95,7 +95,7 @@ def main():
     print("Type create", r)
 
     for tag in tags:
-        r = requests.post(tags_url, data={ "stream": 1, "name": tag })
+        r = requests.post(tags_url, data={ "stream": 1, "name": tag[0], "category": tag[1] })
         print("Tag create", r)
 
     arg_parser = argparse.ArgumentParser(description="Parse XML files in a directory and output to a JSON file.")

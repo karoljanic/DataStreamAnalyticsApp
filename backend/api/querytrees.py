@@ -1,5 +1,6 @@
 from sympy.logic.boolalg import to_dnf
 from sympy.core.symbol import Symbol
+import json
 
 def make_small_table(expr, symbols_dict):
     size = len(symbols_dict)
@@ -52,6 +53,8 @@ def make_expr_from_tree(tree):
         raise ValueError("Invalid operator: " + tree['value'])
 
 def tree_to_table(tree):
+    tree = json.loads(tree)
+
     expr = make_expr_from_tree(tree)
     dnf = to_dnf(expr, simplify=True, force=True)
     symbols = sorted(list(map(lambda x: int(str(x)),dnf.free_symbols)))

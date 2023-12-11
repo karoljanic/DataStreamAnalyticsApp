@@ -3,6 +3,13 @@ export interface Stream {
     name: string;
 }
 
+export interface StreamDetail {
+    id: number;
+    name: string;
+    tags: Tag[];
+    types: Type[];
+}
+
 export interface Tag {
     id: number;
     name: string;
@@ -12,9 +19,15 @@ export interface Tag {
 export interface Type {
     id: number;
     name: string;
+    unit: string;
 }
 
 export interface ChartPoint {
-    data: number;
+    data: string;
     value: number;
+}
+
+export interface Query {
+    id: number;
+    tree_form: any;
 }

@@ -12,12 +12,20 @@ class DataStreamSerializer(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ['id', 'stream', 'name']
+        fields = ['id', 'stream', 'name', 'category']
 
 class TypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Type
-        fields = ['id', 'stream', 'name']
+        fields = ['id', 'stream', 'name', 'unit']
+
+class DataStreamDetailSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True, read_only=True)
+    types = TypeSerializer(many=True, read_only=True)
+    class Meta:
+        model = DataStream
+        fields = ['id', 'name', 'tags', 'types']
+
 
 class InternalDataSketchField(serializers.Field):
     def to_representation(self, value):
@@ -36,4 +44,4 @@ class DataSketchSerializer(serializers.ModelSerializer):
 class QuerySerializer(serializers.ModelSerializer):
     class Meta:
         model = Query
-        fields = ['id', 'tree_form', 'dnf', 'value']
+        fields = ['id', 'tree_form', 'dnf']

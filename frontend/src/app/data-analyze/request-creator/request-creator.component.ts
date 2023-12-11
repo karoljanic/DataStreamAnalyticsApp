@@ -110,7 +110,7 @@ export class RequestCreatorComponent implements OnChanges {
   }
 
   getQuery(): object {
-    return this.convertToJson(this.queryHandler!);
+    return this.convertToJson((this.queryHandler!.getAttr('metadata') as RequestNodeInfo).rightChild!);
   }
 
   private createOperand(operand: string, color: string): RequestNode {
@@ -506,8 +506,8 @@ export class RequestCreatorComponent implements OnChanges {
   private convertToJson(node: RequestNode): object {
     const nodeInfo = node.getAttr('metadata') as RequestNodeInfo;
 
-    const left = nodeInfo.leftChild === null ? "NULL" : this.convertToJson(nodeInfo.leftChild);
-    const right = nodeInfo.rightChild === null ? "NULL" : this.convertToJson(nodeInfo.rightChild);
+    const left = nodeInfo.leftChild === null ? null : this.convertToJson(nodeInfo.leftChild);
+    const right = nodeInfo.rightChild === null ? null : this.convertToJson(nodeInfo.rightChild);
     const value = nodeInfo.label?.text();
 
     return {

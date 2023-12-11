@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { AnalyzeDataService } from '../services/analyzedata.service';
-import { ChartPoint, Stream, Tag, Type } from './sketches';
+import { ChartPoint, Query, Stream, StreamDetail, Tag, Type } from './sketches';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { RequestCreatorComponent, RequestNodeType } from './request-creator/request-creator.component';
 import Chart from 'chart.js/auto';
@@ -48,17 +48,26 @@ export class DataAnalyzeComponent {
       stream.selected = true;
       this.requestCreator?.initialize();
 
-      this.analyzeDataService.getTags(stream.stream.id).subscribe((data: any) => {
-        const tagsByCategory: Tag[][] = this.divideTagsByCategory(data);
+      this.analyzeDataService.getStreamDetail(stream.stream.id).subscribe((data: any) => {
+        const tagsByCategory: Tag[][] = this.divideTagsByCategory(data.tags);
         this.tags = tagsByCategory.map((tags: Tag[]) => {
           const form = new FormControl();
           return { allTags: tags, form: form, selectedTags: [], category: tags[0].category };
         });
-      });
+        this.types = [data.types];
+      })
 
-      this.analyzeDataService.getTypes(stream.stream.id).subscribe((data: any) => {
-        this.types = [data];
-      });
+      // this.analyzeDataService.getTags(stream.stream.id).subscribe((data: any) => {
+      //   const tagsByCategory: Tag[][] = this.divideTagsByCategory(data);
+      //   this.tags = tagsByCategory.map((tags: Tag[]) => {
+      //     const form = new FormControl();
+      //     return { allTags: tags, form: form, selectedTags: [], category: tags[0].category };
+      //   });
+      // });
+
+      // this.analyzeDataService.getTypes(stream.stream.id).subscribe((data: any) => {
+      //   this.types = [data];
+      // });
     }
   }
 
@@ -80,12 +89,19 @@ export class DataAnalyzeComponent {
     }
     else {
       this.queryIsValid = true;
-      const queryAsString = JSON.stringify(query);
+      let queryAsString = JSON.stringify(query);
+      
+      for (const tags of this.tags) {
+        for (const tag of tags.allTags) {
+          queryAsString = queryAsString.replace(tag.name, tag.id.toString())
+        }
+      }
 
       this.showSpinner = true;
 
-      this.analyzeDataService.processQuery(queryAsString).subscribe((queryId: number) => {
-        this.analyzeDataService.getQuery(queryId, '2020-01-01', '2020-01-31', 'day').subscribe((points: any) => {
+      this.analyzeDataService.processQuery(queryAsString).subscribe((queryId: Query) => {
+        // TODO
+        this.analyzeDataService.getQuery(queryId, '2020-01-01', '2020-01-31', 1).subscribe((points: any) => {
           console.log(points);
           this.showSpinner = false;
 
