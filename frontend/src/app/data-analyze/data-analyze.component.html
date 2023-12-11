@@ -36,18 +36,24 @@
             <mat-error *ngIf="!queryIsValid" type="warn">Query Is Invalid. Fill In All The Blanks!</mat-error>
             <mat-spinner *ngIf="showSpinner"></mat-spinner>
             <div *ngIf="showChart" class="queryResult">
-                <div class="ct-chart"></div>
-                <form [formGroup]="saveResultForm" (ngSubmit)="save()">
-                    <mat-form-field>
+                <div class="selectDataType">
+                    <h4 style="margin-right: 2rem;">Select Data Type:</h4>
+                    <mat-radio-group *ngFor="let type of types" name="dataType" aria-label="Select Data Type" style="margin-right: 1rem;">
+                        <mat-radio-button value="type" (change)="datTypeChange(type)">{{type.name}}</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+                <canvas class="custom-chart" id="result-char"></canvas>
+                <form [formGroup]="saveResultForm" (ngSubmit)="save()" class="queryResultForm">
+                    <mat-form-field style="width: 100%;">
                         <mat-label>Enter Title</mat-label>
                         <input matInput formControlName="title">
                     </mat-form-field>
-                    <mat-form-field>
+                    <mat-form-field style="width: 100%;">
                         <mat-label>Enter Description</mat-label>
                         <textarea matInput formControlName="description"></textarea>
                     </mat-form-field>
+                    <mat-error class="queryResultFormError" *ngIf="saveResultFormErrorMessages != ''">{{saveResultFormErrorMessages}}</mat-error>
                     <button mat-flat-button type="submit" color="primary">Save Result</button>
-                    <mat-error *ngIf="saveResultFormErrorMessages != ''">{{saveResultFormErrorMessages}}</mat-error>
                 </form>
             </div>
         </mat-card-content>

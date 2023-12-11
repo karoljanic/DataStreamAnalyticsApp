@@ -23,7 +23,7 @@ export interface Type {
 }
 
 export interface ChartPoint {
-    data: string;
+    day: string;
     value: number;
 }
 
