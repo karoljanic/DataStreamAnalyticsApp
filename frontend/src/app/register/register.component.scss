@@ -1,23 +1,23 @@
+
 body {
     text-align: center;
 }
 
-.login-container {
+.sign-up-container {
     width: 35vw;
-    //font-family: Verdana, 'Lucida Sans Regular', 'Lucida Sans Unicode', Geneva, 'Lucida Grande', sans-serif;
-    color: rgb(0, 0, 0);
-    font-weight: bold;
     margin-top: 17vh;
+    //font-family: Verdana, 'Lucida Sans Regular', 'Lucida Sans Unicode', Geneva, 'Lucida Grande', sans-serif;
     display: inline-block;
-    align-items: center;
-    background-color: rgb(208, 206, 204);
+    background-color: rgb(40, 39, 39);
+    color: rgb(228, 227, 227);
+    font-weight: bold;
     border-radius: 3% 3% 3% 3%;
     //border-radius: 0% 0% 0% 0%;
     //box-shadow: 10px 10px rgba(0,0,0, 0.4);
 }
 
 h1 {
-    margin-top: 2em;
+    margin-top: 1em;
     margin-bottom: 1.5em;
     margin-left: 1em;
     margin-right: 1em;
@@ -29,35 +29,35 @@ h1 {
     height: 2.5em;
     width: 15em;
     background-color: rgb(235, 231, 235);
-    border-color: rgb(0, 0, 0);
+    border-color:rgb(208, 206, 204);
     margin-right: 2em;
     margin-left: 2em;
 }
 
 .submit-btn {
-    background-color: rgb(0, 0, 0);
+    background-color: rgb(208, 206, 204);
     border: none;
     border-radius: 10%;
     height: 3em;
     width: 7em;
     margin-top: 1em;
-    margin-bottom: 4em;
-    color: white;
-    //font-family: 'Lucida Grande', 'Lucida Sans Regular', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    margin-bottom: 3em;
+    color: black;
     font-weight: bold;
+    //font-family: 'Lucida Grande', 'Lucida Sans Regular', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
 .submit-btn:hover {
-    background-color: rgb(208, 206, 204);
+    background-color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
     border: solid;
-    border-color: rgb(0, 0, 0);
-    color: rgb(0, 0, 0);
+    border-color: rgb(208, 206, 204);
     cursor: pointer;
 }
 
 @media only screen and (max-width: 400px) {
 
-    .login-container {
+    .sign-up-container {
         width: 70vw;
         margin-top: 8em;
     }
@@ -65,7 +65,7 @@ h1 {
 
 @media only screen and (min-width: 401px) and (max-width: 700px) {
 
-    .login-container {
+    .sign-up-container {
         width: 60vw;
         margin-top: 8em;
     }

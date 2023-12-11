@@ -38,10 +38,11 @@
     display: flex;
     align-items: center;
     text-align: center;
-    flex-direction: row; 
+    flex-direction: row;
+    cursor: pointer; 
 }
 
-#app-sidenav-content-list-row:last-child {
+#app-sidenav-content-list-row:nth-last-child(-n+2):not(:last-child) {
     margin-top: 50%;
 }
 

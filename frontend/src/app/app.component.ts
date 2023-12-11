@@ -13,7 +13,8 @@ export class AppComponent {
     { icon: 'home', text: 'Home', route: '' },
     { icon: 'bar_chart', text: 'Analyze', route: 'analyzer' },
     { icon: 'person', text: 'Profile', route: 'profile' },
-    { icon: 'login', text: 'Login', route: 'login' }
+    { icon: 'login', text: 'Login', route: 'login' },
+    { icon: 'person_add', text: 'Register', route: 'register' }
   ];
 
   constructor(private router: Router,
