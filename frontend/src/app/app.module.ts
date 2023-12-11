@@ -24,6 +24,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonToggleModule } from '@angular/material/button-toggle'
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { ProfileComponent } from './profile/profile.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
@@ -80,7 +82,9 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
     MatSelectModule,
     MatDialogModule,
     MatProgressSpinnerModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   providers: [
     LocalStorageService,

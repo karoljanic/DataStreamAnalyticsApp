@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { AnalyzeDataService } from '../services/analyzedata.service';
-import { ChartPoint, Query, Stream, StreamDetail, Tag, Type } from './sketches';
+import { ChartPoint, Query, Stream, Tag, Type } from './sketches';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { RequestCreatorComponent, RequestNodeType } from './request-creator/request-creator.component';
 import Chart from 'chart.js/auto';
@@ -16,6 +16,7 @@ export class DataAnalyzeComponent {
   streams: { stream: Stream, selected: boolean }[] = [];
   tags: { allTags: Tag[], form: FormControl, selectedTags: Tag[], category: string }[] = [];
   types: Type[] = [];
+  granularities: string[] = ['daily', 'weekly', 'monthly'];
 
   newOperands: string[] = [];
   queryIsValid: boolean = true;
@@ -24,6 +25,11 @@ export class DataAnalyzeComponent {
 
   saveResultForm: FormGroup;
   saveResultFormErrorMessages = '';
+
+  range = new FormGroup({
+    start: new FormControl<Date | null>(null),
+    end: new FormControl<Date | null>(null),
+  });
 
   chartPoints: ChartPoint[] = [];
   chart: Chart | undefined;
@@ -59,18 +65,6 @@ export class DataAnalyzeComponent {
         });
         this.types = data.types;
       })
-
-      // this.analyzeDataService.getTags(stream.stream.id).subscribe((data: any) => {
-      //   const tagsByCategory: Tag[][] = this.divideTagsByCategory(data);
-      //   this.tags = tagsByCategory.map((tags: Tag[]) => {
-      //     const form = new FormControl();
-      //     return { allTags: tags, form: form, selectedTags: [], category: tags[0].category };
-      //   });
-      // });
-
-      // this.analyzeDataService.getTypes(stream.stream.id).subscribe((data: any) => {
-      //   this.types = [data];
-      // });
     }
   }
 
@@ -84,7 +78,7 @@ export class DataAnalyzeComponent {
 
   visualizeQuery() {
     const query = this.requestCreator?.getQuery();
-    const queryIsValid = query !== undefined && this.checkCompletion(query);
+    const queryIsValid = query !== null && this.checkCompletion(query);
 
     if (!queryIsValid) {
       this.queryIsValid = false;
@@ -94,7 +88,7 @@ export class DataAnalyzeComponent {
     else {
       this.queryIsValid = true;
       let queryAsString = JSON.stringify(query);
-      
+
       for (const tags of this.tags) {
         for (const tag of tags.allTags) {
           queryAsString = queryAsString.replace(tag.name, tag.id.toString())
@@ -105,7 +99,6 @@ export class DataAnalyzeComponent {
       this.showSpinner = true;
 
       this.analyzeDataService.processQuery(queryAsString).subscribe((queryId: Query) => {
-        // TODO
         this.analyzeDataService.getQuery(queryId, '2020-01-01', '2020-01-31', 1).subscribe((points: any) => {
           this.chartPoints = points
           this.showSpinner = false;
@@ -117,8 +110,11 @@ export class DataAnalyzeComponent {
     }
   }
 
-  datTypeChange(type: Type) {
+  dataTypeChange(type: Type) {
     this.generateChart(type);
+  }
+
+  dataGranularityChange(granularity: string) {
   }
 
   save() {
@@ -180,7 +176,6 @@ export class DataAnalyzeComponent {
   }
 
   private generateChart(type: Type): void {
-    console.log(this.chartPoints)
     const datas: string[] = this.chartPoints.map((point: ChartPoint) => point.day);
     const values: number[] = this.chartPoints.map((point: ChartPoint) => point.value);
 

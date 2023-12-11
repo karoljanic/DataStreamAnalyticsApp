@@ -110,10 +110,43 @@
     align-items: center;
 }
 
-.selectDataType {
+.selectDataParamContainer {
+    width: 100%;
+}
+
+.selectDataParam {
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: baseline;
+    justify-items: left;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.selectDataParamTopLabel {
+    margin-right: 2rem; 
+    margin-top: 0px; 
+    margin-bottom: 0px; 
+    padding-top: 0px; 
+    padding-bottom: 0px;
+}
+
+.selectDataParamMidLabel {
+    margin-right: 2rem; 
+    margin-top: 2rem; 
+    margin-bottom: 2rem; 
+    padding-top: 0px; 
+    padding-bottom: 0px;
+}
+
+.selectDataParamBottomLabel {
+    margin-right: 2rem; 
+    margin-top: 0px; 
+    margin-bottom: 0px; 
+    padding-top: 0px; 
+    padding-bottom: 0px;
 }
 
 .queryResultForm {

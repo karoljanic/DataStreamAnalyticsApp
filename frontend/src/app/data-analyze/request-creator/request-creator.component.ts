@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Stage } from 'konva/lib/Stage';
 import { Group } from 'konva/lib/Group';
 import { Layer } from 'konva/lib/Layer';
@@ -6,6 +6,7 @@ import { Rect } from 'konva/lib/shapes/Rect';
 import { Text } from 'konva/lib/shapes/Text';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { LocalStorageService } from 'src/app/services/localstorage.service';
+import { RequestCreatorConfig } from './RequestCreatorConfig';
 
 export enum RequestNodeType {
   OPERAND,
@@ -40,14 +41,14 @@ export class RequestCreatorComponent implements OnChanges {
   operators: string[] = ['AND', 'OR', 'NOT', 'XOR', 'WITHOUT'];
   generators: Map<string, [number, number]> = new Map();
 
-  private primaryColor: string = 'red';
-  private secondaryColor: string = 'blue';
-  private tertiaryColor: string = 'white';
-  private quaternaryColor: string = 'gray';
-  private quinaryColor: string = 'violet';
-  private textSize: number = 16;  // in px
-  private textColor: string = 'yellow';
-  private internalPadding: number = 8;  // in px
+  private primaryColor: string = '';
+  private secondaryColor: string = '';
+  private tertiaryColor: string = '';
+  private quaternaryColor: string = '';
+  private quinaryColor: string = '';
+  private textSize: number = 0;
+  private textColor: string = '';
+  private internalPadding: number = 0;
 
   private stage: Stage | null = null;
   private backLayer: Layer | null = null;
@@ -57,7 +58,17 @@ export class RequestCreatorComponent implements OnChanges {
   private queryHandler: RequestNode | undefined;
 
   constructor(private elem: ElementRef, private localStorage: LocalStorageService) {
-    // set default colors base on current theme
+    // set config base on current theme
+    const theme = this.localStorage.get(LocalStorageService.themeKey);
+    const config = RequestCreatorConfig[theme];
+    this.primaryColor = config.primaryColor;
+    this.secondaryColor = config.secondaryColor;
+    this.tertiaryColor = config.tertiaryColor;
+    this.quaternaryColor = config.quaternaryColor;
+    this.quinaryColor = config.quinaryColor;
+    this.textSize = config.textSize;
+    this.textColor = config.textColor;
+    this.internalPadding = config.internalPadding;
   }
 
   ngAfterViewInit(): void {
@@ -109,7 +120,16 @@ export class RequestCreatorComponent implements OnChanges {
     this.queryHandler.setAttr('y', height / 3);
   }
 
-  getQuery(): object {
+  getQuery(): object | null {
+    if (this.queryHandler === undefined) {
+      return null;
+    }
+
+    const rightChild = this.queryHandler.getAttr('metadata')?.rightChild;
+    if (rightChild === null) {
+      return null;
+    }
+
     return this.convertToJson((this.queryHandler!.getAttr('metadata') as RequestNodeInfo).rightChild!);
   }
 
@@ -380,9 +400,11 @@ export class RequestCreatorComponent implements OnChanges {
   }
 
   private createGroup(draggable: boolean): Group {
+    const rand1 = 0.7 + Math.random() * 0.6;
+    const rand2 = 0.7 + Math.random() * 0.6;
     return new Group({
-      x: this.stage!.width() / 2,
-      y: this.stage!.height() / 2,
+      x: this.stage!.width() / 2 * rand1,
+      y: this.stage!.height() / 2 * rand2,
       draggable: draggable,
     });
   }

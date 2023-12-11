@@ -17,7 +17,7 @@ class Tag(models.Model):
 class Type(models.Model):
 	stream = models.ForeignKey(DataStream, related_name="types",  on_delete=models.CASCADE)
 	name = models.CharField(max_length=255)
-	unit = models.CharField(max_length=255)
+	unit = models.CharField(max_length=255, blank=True)
 	class Meta:
 		constraints = [
 			models.UniqueConstraint(fields=['stream', 'name'], name="unique_names_types")

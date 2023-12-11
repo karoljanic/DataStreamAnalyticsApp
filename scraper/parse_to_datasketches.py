@@ -91,7 +91,7 @@ def main():
     r = requests.post(streams_url, data={ "name": "historic" })
     print("Stream create", r)
 
-    r = requests.post(types_url, data={ "stream": 1, "name": "count" })
+    r = requests.post(types_url, data={ "stream": 1, "name": "count", "unit": "" })
     print("Type create", r)
 
     for tag in tags:
