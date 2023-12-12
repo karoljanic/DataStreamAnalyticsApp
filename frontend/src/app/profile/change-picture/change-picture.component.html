@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Change Your Profile Picture</h1>
+<div mat-dialog-content>
+    <mat-form-field>
+        <mat-label>New Picture</mat-label>
+        <button mat-icon-button matPrefix (click)="imageInput.click()">
+            <mat-icon>image</mat-icon>
+        </button>
+        <input readonly matInput [(ngModel)]="data.pictureName"/>
+        <input type="file" multiple hidden #imageInput (change)="handleFileInputChange(imageInput.files)" />
+    </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Update</button>
+</div>

@@ -3,6 +3,10 @@
 build_types=()
 accepted_build_types=("release" "debug")
 
+if [[ $# -eq 0 ]]; then
+    build_types+=("release")
+fi
+
 for arg in "$@"; do
     for acc in ${accepted_build_types[@]}; do
         if [[ $arg == $acc ]]; then

@@ -1,38 +1,66 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
-    <div class="container">
-        <div class="login-container">
-            <form>
-                <h1 id="h_1">Log in</h1>
-                <input class="inp" id="inp1" type="email" placeholder="E-mail">
-                <pre></pre>
-                <input class="inp" id="inp1" type="password" placeholder="Password">
-                <pre></pre>
-                <button class="submit-btn" id="login-btn" type="submit">Log in</button>
-            </form>
-        </div>
-        <div class="sign-up-container">
-            <form>
-                <h2 id="h2_1">Don't have an account?<br></h2>
-                <h1 id="h_2">Sign up!</h1>
-                <input class="inp" id="inp2" type="text" placeholder="Username" required>
-                <pre></pre>
-                <input class="inp" id="inp2" type="email" placeholder="E-mail address" required>
-                <pre></pre>
-                <input class="inp" id="inp2" type="password" placeholder="Password" required>
-                <pre></pre>
-                <input class="inp" id="inp2" type="password" placeholder="Repeat password" required>
-                <div *ngIf></div>
-                <pre></pre>
-                <button class="submit-btn" id="signup-btn" type="submit">Sign in</button>
-            </form>
-        </div>
-    </div>
-</body>
-</html>
+<div class="auth-container">  
+  <mat-card class="auth-card">
+    <mat-card-content class="auth-card-content">
+      <h3>Log in</h3>
+      <form [formGroup]="logInForm" (ngSubmit)="onLogInSubmit(logInForm.value)">
+        <p>
+          <mat-form-field appearance="fill" class="auth-card-content-form">
+            <mat-label>User email</mat-label>
+            <input matInput formControlName="email" type="email" required>
+          </mat-form-field>
+        </p>
+        <p>
+          <mat-form-field appearance="fill" class="auth-card-content-form">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password" type="password">
+          </mat-form-field>
+        </p>
+        <mat-error>{{loginError}}</mat-error>
+        <p>
+          <button mat-flat-button color="primary" type="submit" class="auth-card-content-submit">LOG IN</button>
+        </p>
+      </form>
+    </mat-card-content>
+  </mat-card>
+  <mat-card class="auth-card">
+    <mat-card-content class="auth-card-content">
+      <h3>Sign up</h3>
+      <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit(registerForm.value)">
+        <p>
+          <mat-form-field appearance="fill" class="auth-card-content-form">
+            <mat-label>User name</mat-label>
+            <input matInput formControlName="name">
+          </mat-form-field>
+        </p>
+        <p>
+          <mat-form-field appearance="fill" class="auth-card-content-form">
+            <mat-label>User surname</mat-label>
+              <input matInput formControlName="surname">
+          </mat-form-field>
+        </p>
+        <p>
+          <mat-form-field appearance="fill" class="auth-card-content-form">
+            <mat-label>User email</mat-label>
+              <input matInput formControlName="email" type="email">
+          </mat-form-field>
+        </p>
+        <p>
+          <mat-form-field appearance="fill" class="auth-card-content-form">
+              <mat-label>Password</mat-label>
+              <input matInput formControlName="password" type="password">
+          </mat-form-field>
+        </p>
+        <p>
+          <mat-form-field appearance="fill" class="auth-card-content-form">
+            <mat-label>Confirm password</mat-label>
+            <input matInput formControlName="confirmPassword" type="password">
+          </mat-form-field>
+        </p>
+        <mat-error>{{registerError}}</mat-error>
+        <p>
+          <button mat-flat-button color="primary" type="submit" class="auth-card-content-submit">SIGN UP</button>
+        </p>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

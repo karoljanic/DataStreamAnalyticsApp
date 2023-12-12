@@ -1,0 +1,167 @@
+.requests-container {
+    width: 100%;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.top-requests-card-stream {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    padding-top: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 90%;
+}
+
+.top-requests-card-tag {
+    display: flex;
+    flex-direction: column;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 90%;
+}
+
+.top-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tags {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.tag-containter {
+    display: flex;
+    flex-direction: column;
+    padding-left: 2rem;
+    padding-bottom: 2rem;
+}
+
+.middle-requests-card {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding-top: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 90%;
+    height: 90vh;
+}
+
+.bottom-requests-card {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    padding-top: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 90%;
+}
+
+.requests-stream-selector {
+    display: flex;
+    flex-direction: row;
+}
+
+.requests-tag-selector {
+    display: flex;
+    flex-direction: row;
+}
+
+.stream-chip {
+    margin-right: 0.5rem!important;
+    margin-left: 0.5rem!important;
+}
+
+.tag-chip {
+    margin-right: 0.5rem!important;
+    margin-left: 0.5rem!important;
+}
+
+.requests-sandbox {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+.requests-tools {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.queryResult {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.selectDataParamContainer {
+    width: 100%;
+}
+
+.selectDataParam {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    justify-items: left;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.selectDataParamTopLabel {
+    margin-right: 2rem; 
+    margin-top: 0px; 
+    margin-bottom: 0px; 
+    padding-top: 0px; 
+    padding-bottom: 0px;
+}
+
+.selectDataParamMidLabel {
+    margin-right: 2rem; 
+    margin-top: 2rem; 
+    margin-bottom: 2rem; 
+    padding-top: 0px; 
+    padding-bottom: 0px;
+}
+
+.selectDataParamBottomLabel {
+    margin-right: 2rem; 
+    margin-top: 0px; 
+    margin-bottom: 0px; 
+    padding-top: 0px; 
+    padding-bottom: 0px;
+}
+
+.queryResultForm {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.queryResultFormError {
+    margin-bottom: 1rem;
+}
+
+.custom-chart {
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
