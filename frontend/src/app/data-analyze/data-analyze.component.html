@@ -40,16 +40,16 @@
                     <div class="selectDataParam">
                         <h4 class="selectDataParamTopLabel">Select Data Type:</h4>
                         <mat-radio-group *ngFor="let type of types" name="dataType" aria-label="Select Data Type" style="margin-right: 1rem;">
-                            <mat-radio-button value="type" (change)="dataTypeChange(type)">{{type.name}}</mat-radio-button>
+                            <mat-radio-button [checked]="type === currentChartType" value="type" (change)="dataTypeChange(type)">{{type.name}}</mat-radio-button>
                         </mat-radio-group>
                     </div>
                     <div class="selectDataParam">
                         <h4 class="selectDataParamMidLabel">Select Period:</h4>
                         <mat-form-field>
                             <mat-label>Enter a date range</mat-label>
-                            <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
-                                <input matStartDate formControlName="start" placeholder="Start date">
-                                <input matEndDate formControlName="end" placeholder="End date">
+                            <mat-date-range-input [formGroup]="chartPeriod" [rangePicker]="picker">
+                                <input matStartDate #dateRangeStart formControlName="start" placeholder="Start date">
+                                <input matEndDate #dateRangeEnd formControlName="end" placeholder="End date" (dateChange)="dataPeriodChange(dateRangeStart, dateRangeEnd)">
                             </mat-date-range-input>
                             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                             <mat-date-range-picker #picker></mat-date-range-picker>
@@ -58,7 +58,7 @@
                     <div class="selectDataParam">
                         <h4 class="selectDataParamBottomLabel">Select Granularity:</h4>
                         <mat-radio-group *ngFor="let granularity of granularities" name="dataGranulation" aria-label="Select Granularity" style="margin-right: 1rem;">
-                            <mat-radio-button value="type" (change)="dataGranularityChange(granularity)">{{granularity}}</mat-radio-button>
+                            <mat-radio-button [checked]="granularity === currentChartGranularity" value="type" (change)="dataGranularityChange(granularity)">{{granularity}}</mat-radio-button>
                         </mat-radio-group>
                     </div>
                 </div>

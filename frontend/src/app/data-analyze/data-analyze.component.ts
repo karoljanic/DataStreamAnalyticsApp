@@ -4,6 +4,7 @@ import { ChartPoint, Query, Stream, Tag, Type } from './sketches';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { RequestCreatorComponent, RequestNodeType } from './request-creator/request-creator.component';
 import Chart from 'chart.js/auto';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-data-analyze',
@@ -21,20 +22,26 @@ export class DataAnalyzeComponent {
   newOperands: string[] = [];
   queryIsValid: boolean = true;
   showSpinner: boolean = false;
-  showChart: boolean = true;
+  showChart: boolean = false;
 
   saveResultForm: FormGroup;
   saveResultFormErrorMessages = '';
 
-  range = new FormGroup({
-    start: new FormControl<Date | null>(null),
-    end: new FormControl<Date | null>(null),
+  chartPeriod = new FormGroup({
+    start: new FormControl<Date | null>(new Date('01/01/2020')),
+    end: new FormControl<Date | null>(new Date('01/31/2020')),
   });
 
-  chartPoints: ChartPoint[] = [];
+  currentChartPoints: ChartPoint[] = [];
+  currentChartType: Type | undefined;
+  currentChartGranularity: string = 'daily';
+  currentChartPeriod: { start: string, end: string } = { start: '2020-01-01', end: '2020-01-31' };
+  currentQuery: Query | undefined = undefined;
   chart: Chart | undefined;
+  currentChartDatas: string[] = [];
+  currentChartValues: number[] = [];
 
-  constructor(private analyzeDataService: AnalyzeDataService, private formBuilder: FormBuilder) {
+  constructor(private analyzeDataService: AnalyzeDataService, private formBuilder: FormBuilder, private snackBar: MatSnackBar) {
     this.analyzeDataService.getStreams().subscribe((data: any) => {
       this.streams = data.map((stream: Stream) => {
         return { stream: stream, selected: false };
@@ -64,6 +71,7 @@ export class DataAnalyzeComponent {
           return { allTags: tags, form: form, selectedTags: [], category: tags[0].category };
         });
         this.types = data.types;
+        this.currentChartType = this.types[0];
       })
     }
   }
@@ -95,26 +103,37 @@ export class DataAnalyzeComponent {
         }
       }
 
-      this.showChart = false;
+      //this.showChart = false;
       this.showSpinner = true;
 
-      this.analyzeDataService.processQuery(queryAsString).subscribe((queryId: Query) => {
-        this.analyzeDataService.getQuery(queryId, '2020-01-01', '2020-01-31', 1).subscribe((points: any) => {
-          this.chartPoints = points
-          this.showSpinner = false;
-
-          this.showChart = true;
-          setTimeout(() => { this.generateChart(this.types[0]); }, 200); // waiting for contex creation
-        });
+      this.analyzeDataService.processQuery(queryAsString).subscribe((query: Query) => {
+        this.currentQuery = query;
+        this.showSpinner = false;
+        this.generateChart();
       });
     }
   }
 
   dataTypeChange(type: Type) {
-    this.generateChart(type);
+    this.currentChartType = type;
+    this.generateChart();
+  }
+
+  dataPeriodChange(start: any, end: any) {
+    if (start.value === '' || end.value === '') {
+      return;
+    }
+
+    this.currentChartPeriod = {
+      start: this.convertDateFormat(start.value),
+      end: this.convertDateFormat(end.value)
+    };
+    this.generateChart();
   }
 
   dataGranularityChange(granularity: string) {
+    this.currentChartGranularity = granularity;
+    this.generateChart();
   }
 
   save() {
@@ -136,6 +155,8 @@ export class DataAnalyzeComponent {
       else {
         this.saveResultFormErrorMessages = '';
       }
+
+      this.snackBar.open('Functionality available in next version.', 'Close');
     }
     else {
       this.saveResultFormErrorMessages = 'Title and description are required.';
@@ -175,33 +196,46 @@ export class DataAnalyzeComponent {
     return false;
   }
 
-  private generateChart(type: Type): void {
-    const datas: string[] = this.chartPoints.map((point: ChartPoint) => point.day);
-    const values: number[] = this.chartPoints.map((point: ChartPoint) => point.value);
+  private convertDateFormat(date: string): string {
+    const dateValues = date.split('/');
+    const day = dateValues[1].toString().padStart(2, '0');
+    const month = dateValues[0].toString().padStart(2, '0');
+    const year = dateValues[2].toString();
+    return `${year}-${month}-${day}`;
+  }
 
-    if (this.chart !== undefined) {
-      this.chart.destroy();
-    }
+  private generateChart(): void {
+    this.analyzeDataService.getQuery(this.currentQuery!, this.currentChartPeriod.start, this.currentChartPeriod.end, this.currentChartType!.id).subscribe((points: any) => {
+      this.currentChartPoints = points
+      this.showChart = true;
+      setTimeout(() => {
+        this.currentChartDatas = this.currentChartPoints.map((point: ChartPoint) => point.day);
+        this.currentChartValues = this.currentChartPoints.map((point: ChartPoint) => point.value);
 
-    this.chart = new Chart("result-char", {
-      type: 'line',
-      data: {
-        labels: datas,
-        datasets: [
-          {
-            data: values,
-          },
-        ]
-      },
-      options: {
-        maintainAspectRatio: true,
-        aspectRatio: 2,
-        responsive: false,
-        scales: {
-          y: { beginAtZero: true },
-          x: {}
-        },
-      }
+        if (this.chart === undefined) {
+          this.chart = new Chart("result-char", {
+            type: 'line',
+            data: {
+              labels: this.currentChartDatas,
+              datasets: [{ data: this.currentChartValues }]
+            },
+            options: {
+              maintainAspectRatio: true,
+              aspectRatio: 2,
+              responsive: false,
+              scales: {
+                y: { beginAtZero: true },
+                x: {}
+              },
+              plugins: { legend: { display: false } }
+            }
+          });
+        }
+        else {
+          this.chart.data.labels = this.currentChartDatas;
+          this.chart.data.datasets[0] = { data: this.currentChartValues };
+        }
+      }, 200); // waiting for contex creation
     });
   }
 }

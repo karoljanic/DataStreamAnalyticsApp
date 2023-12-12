@@ -129,17 +129,17 @@ export class ProfileComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result !== undefined && result.picture !== null) {
-        var newUserProfile: UserProfile = { ...this.userProfile! };
-        console.log(result.picture);
-        newUserProfile.picture = result.picture;
-        this.userProfileService.updateUserProfile(newUserProfile).subscribe({
-          next: (data) => {
-            this.userProfile = data;
-          },
-          error: (error) => {
-            console.log(error);
-          }
-        });
+        this.snackBar.open('Functionality available in next version.', 'Close');
+        // var newUserProfile: UserProfile = { ...this.userProfile! };
+        // newUserProfile.picture = result.picture;
+        // this.userProfileService.updateUserProfile(newUserProfile).subscribe({
+        //   next: (data) => {
+        //     this.userProfile = data;
+        //   },
+        //   error: (error) => {
+        //     console.log(error);
+        //   }
+        // });
       }
     })
   }

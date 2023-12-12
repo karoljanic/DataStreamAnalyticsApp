@@ -32,7 +32,7 @@ export class AnalyzeDataService {
         return this.http.get<ChartPoint[]>(AnalyzeDataService.queryResultApiUri + '/' + query.id, { params: { "start-date": startDate, "end-date": endDate, "type": type } });
     }
 
-    getRandomQueies(): Observable<Query[]> {
-        return this.http.get<Query[]>(AnalyzeDataService.randomQueriesApiUri + '/4');
+    getRandomQueies(n: number): Observable<Query[]> {
+        return this.http.get<Query[]>(AnalyzeDataService.randomQueriesApiUri + '/' + n.toString());
     }
 }

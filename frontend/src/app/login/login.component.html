@@ -4,20 +4,20 @@
       <h3>Log in</h3>
       <form [formGroup]="logInForm" (ngSubmit)="onLogInSubmit(logInForm.value)">
         <p>
-          <mat-form-field appearance="fill">
+          <mat-form-field appearance="fill" class="auth-card-content-form">
             <mat-label>User email</mat-label>
             <input matInput formControlName="email" type="email" required>
           </mat-form-field>
         </p>
         <p>
-          <mat-form-field appearance="fill">
+          <mat-form-field appearance="fill" class="auth-card-content-form">
             <mat-label>Password</mat-label>
             <input matInput formControlName="password" type="password">
           </mat-form-field>
         </p>
         <mat-error>{{loginError}}</mat-error>
         <p>
-          <button mat-flat-button color="primary" type="submit" cdkFocusInitial>LOG IN</button>
+          <button mat-flat-button color="primary" type="submit" class="auth-card-content-submit">LOG IN</button>
         </p>
       </form>
     </mat-card-content>
@@ -27,38 +27,38 @@
       <h3>Sign up</h3>
       <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit(registerForm.value)">
         <p>
-          <mat-form-field appearance="fill">
+          <mat-form-field appearance="fill" class="auth-card-content-form">
             <mat-label>User name</mat-label>
             <input matInput formControlName="name">
           </mat-form-field>
         </p>
         <p>
-          <mat-form-field appearance="fill">
+          <mat-form-field appearance="fill" class="auth-card-content-form">
             <mat-label>User surname</mat-label>
               <input matInput formControlName="surname">
           </mat-form-field>
         </p>
         <p>
-          <mat-form-field appearance="fill">
+          <mat-form-field appearance="fill" class="auth-card-content-form">
             <mat-label>User email</mat-label>
               <input matInput formControlName="email" type="email">
           </mat-form-field>
         </p>
         <p>
-          <mat-form-field appearance="fill">
+          <mat-form-field appearance="fill" class="auth-card-content-form">
               <mat-label>Password</mat-label>
               <input matInput formControlName="password" type="password">
           </mat-form-field>
         </p>
         <p>
-          <mat-form-field appearance="fill">
+          <mat-form-field appearance="fill" class="auth-card-content-form">
             <mat-label>Confirm password</mat-label>
             <input matInput formControlName="confirmPassword" type="password">
           </mat-form-field>
         </p>
         <mat-error>{{registerError}}</mat-error>
         <p>
-          <button mat-flat-button color="primary" type="submit" cdkFocusInitial>SIGN UP</button>
+          <button mat-flat-button color="primary" type="submit" class="auth-card-content-submit">SIGN UP</button>
         </p>
       </form>
     </mat-card-content>
