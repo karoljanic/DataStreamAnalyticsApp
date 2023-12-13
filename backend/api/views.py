@@ -57,8 +57,9 @@ class QueryResult(APIView):
         for day in days:
             try:
                 result.append({ "day": str(day), "value": self.value_in_day(day, typ, sketches_symbols, dnf)})
-            except: 
-                pass
+            except Exception as e: 
+                print(day)
+                print(e)
 
         return Response(result)
     
@@ -67,7 +68,7 @@ class QueryResult(APIView):
         sketches = []
         for b in sketches_bytes:
             d = DS()
-            d.from_bytes(b)
+            d.from_bytes(bytes(b))
             sketches.append(d)
 
         computed = compute_dnf(sketches, dnf)
