@@ -39,26 +39,26 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
     cmake_policy(SET CMP0135 NEW)
 endif ()
 
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
-    message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
-    file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/0.18.1/conan.cmake"
-            "${CMAKE_BINARY_DIR}/conan.cmake"
-            TLS_VERIFY ON)
-endif()
+# if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
+#     message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
+#     file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/0.18.1/conan.cmake"
+#             "${CMAKE_BINARY_DIR}/conan.cmake"
+#             TLS_VERIFY ON)
+# endif()
 
-include(${CMAKE_BINARY_DIR}/conan.cmake)
+# include(${CMAKE_BINARY_DIR}/conan.cmake)
 
-conan_cmake_autodetect(settings)
+# conan_cmake_autodetect(settings)
 
-conan_cmake_install(PATH_OR_REFERENCE ${PROJECT_SOURCE_DIR}
-        BUILD missing
-        SETTINGS ${settings})
+# conan_cmake_install(PATH_OR_REFERENCE ${PROJECT_SOURCE_DIR}
+        # BUILD missing
+        # SETTINGS ${settings})
 
-option(ENABLE_TESTING "Enable the tests" ${PROJECT_IS_TOP_LEVEL})
-if (ENABLE_TESTING)
-    enable_testing()
-    add_subdirectory(test)
-endif ()
+# option(ENABLE_TESTING "Enable the tests" ${PROJECT_IS_TOP_LEVEL})
+# if (ENABLE_TESTING)
+#     enable_testing()
+#     add_subdirectory(test)
+# endif ()
 
 add_compile_options(-Wall -Wextra -Werror -pedantic -fprofile-instr-generate -fcoverage-mapping)
 

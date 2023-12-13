@@ -35,7 +35,7 @@ class DataSketch(models.Model):
 
 	def value(self):
 		ds = DS()
-		ds.from_bytes(self.sketch)
+		ds.from_bytes(bytes(self.sketch))
 		return ds.read_value()
 
 	class Meta:

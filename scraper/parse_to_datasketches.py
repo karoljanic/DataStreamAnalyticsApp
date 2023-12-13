@@ -42,6 +42,7 @@ tags = [
     ["remote", "other"],
 ]
 
+# url = "https://datastream-analytics.fly.dev/api/"
 url = "http://127.0.0.1:8000/api/"
 streams_url = url + "streams/"
 tags_url = url + "tags/"

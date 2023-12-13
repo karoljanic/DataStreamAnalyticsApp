@@ -112,7 +112,7 @@ class UserSignUpView(ObtainAuthToken):
         encoded_uid = urlsafe_base64_encode(force_bytes(user.pk))
         encoded_token = urlsafe_base64_encode(force_bytes(token[0].key))
         mail2_subject = "Confirm your email address in DataStreamAnalytics!"
-        mail2_message = f"Hello {user.name}!\nPlease confirm your email address by clicking the link below:\n\nhttp://localhost:4200//activate/{encoded_uid}/{encoded_token}\n\nBest regards,\nDataStreamAnalytics team"
+        mail2_message = f"Hello {user.name}!\nPlease confirm your email address by clicking the link below:\n\nhttps://datastream-analytics.fly.dev/activate/{encoded_uid}/{encoded_token}\n\nBest regards,\nDataStreamAnalytics team"
         
         from_email = settings.EMAIL_HOST_USER
         to_list = [user.email]
