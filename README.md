@@ -1,5 +1,8 @@
 # DataStreamAnalyzer
 
+## Wersja alpha
+https://datastream-analytics.fly.dev/
+
 ## Odpalanie lokalne całej aplikacji
 
 ### Instalacja narzędzi
