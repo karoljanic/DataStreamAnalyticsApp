@@ -106,13 +106,18 @@ class UserSignUpView(ObtainAuthToken):
         user = serializer.save()
         token = Token.objects.get_or_create(user=user)
 
+        if settings.DEBUG==True:
+            domain = 'http://localhost:4200'
+        else:
+            domain = 'https://datastream-analytics.fly.dev'
+        
         mail1_subject = "Welcome to DataStreamAnalytics!"
         mail1_message = f"Hello {user.name}!\nWelcome to DataStreamAnalytics app!\nWe have sent you a confirmation email, please confirm your email address.\n\nBest regards,\nDataStreamAnalytics team"
         
         encoded_uid = urlsafe_base64_encode(force_bytes(user.pk))
         encoded_token = urlsafe_base64_encode(force_bytes(token[0].key))
         mail2_subject = "Confirm your email address in DataStreamAnalytics!"
-        mail2_message = f"Hello {user.name}!\nPlease confirm your email address by clicking the link below:\n\nhttps://datastream-analytics.fly.dev/activate/{encoded_uid}/{encoded_token}\n\nBest regards,\nDataStreamAnalytics team"
+        mail2_message = f"Hello {user.name}!\nPlease confirm your email address by clicking the link below:\n\n{domain}/activate/{encoded_uid}/{encoded_token}\n\nBest regards,\nDataStreamAnalytics team"
         
         from_email = settings.EMAIL_HOST_USER
         to_list = [user.email]
