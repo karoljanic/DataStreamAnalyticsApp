@@ -43,6 +43,7 @@ import { AnalyzeDataService } from './services/analyzedata.service';
 import { AuthService } from './services/auth.service';
 import { TokenInterceptor } from './token.interceptor';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { RegisterComponent } from './register/register.component';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,8 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
     ChangeNameComponent,
     ChangeSurnameComponent,
     ChangePictureComponent,
-    DeleteAccountComponent
+    DeleteAccountComponent,
+    RegisterComponent
   ],
   imports: [
     AppRoutingModule,

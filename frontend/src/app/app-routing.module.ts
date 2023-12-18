@@ -7,10 +7,12 @@ import { ProfileComponent } from './profile/profile.component';
 import { DataAnalyzeComponent } from './data-analyze/data-analyze.component';
 import { AuthRequiredComponent } from './auth-required/auth-required.component';
 import { ActivationComponent } from './activation/activation.component';
+import { RegisterComponent } from './register/register.component';
 
 const routes: Routes = [
     { path: '', component: DashboardComponent },
     { path: 'login', component: LoginComponent },
+    { path: 'register', component:RegisterComponent },
     { path: 'activate/:uid/:token', component: ActivationComponent },
     { path: 'authentication-required', component: AuthRequiredComponent },
     { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },

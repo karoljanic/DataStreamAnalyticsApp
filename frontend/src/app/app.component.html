@@ -1,5 +1,5 @@
-<mat-sidenav-container id="app-container">
-    <mat-sidenav mode="side" disableClose="true" opened id="app-sidenav">
+    <mat-sidenav-container id="app-container">
+    <mat-sidenav #sidenav autoFocus="false" mode="over" [(opened)]="isMenuOpen" id="app-sidenav" (click)="onSidenavClick()">
         <div id="app-logo-container">
             <img id="app-logo" src="../assets/simple-logo.png" alt="Logo" [style.width.%]="30">
         </div>
@@ -24,13 +24,19 @@
                 <mat-icon id="app-sidenav-content-list-icon">logout</mat-icon>
                 <span id="app-sidenav-content-list-label">Logout</span>
             </h4>
+            <h4 mat-list-item id="app-sidenav-content-list-row" (click)="navigateToRoute('register')">
+                <mat-icon id="app-sidenav-content-list-icon">person_add</mat-icon>
+                <span id="app-sidenav-content-list-label">Register</span>
+            </h4>
         </mat-nav-list>
     </mat-sidenav>
   
     <mat-sidenav-content>
         <div id="app-sidenav-content">
+            <button mat-button class="menu-button" (click)="sidenav.toggle()">
+                <mat-icon>{{ isMenuOpen ? 'menu_open' : 'menu' }}</mat-icon>
+            </button>
             <router-outlet></router-outlet>
         </div>
     </mat-sidenav-content>
 </mat-sidenav-container>
-  
