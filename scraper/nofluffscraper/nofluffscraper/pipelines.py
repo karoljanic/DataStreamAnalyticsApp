@@ -38,6 +38,7 @@ class JustJoinItPipeline:
 
     def close_spider(self, spider):
         top_skills = sorted(self.skills_freq.items(), key=lambda item: item[1], reverse=True)[:100]
+        top_locations = sorted(self.locations.items(), key=lambda item: item[1], reverse=True)[:11]
 
         top_offers = [offer for offer in self.offers]
         with open('skills.txt', 'w') as f:
@@ -46,10 +47,15 @@ class JustJoinItPipeline:
 
         datastream = sketches.DataStream(2, 2)
         skillTags = { skill[0] : datastream.getOrAddTagId(skill[0], "Required skill") for skill in top_skills }
+        locationTags = { location[0] : datastream.getOrAddTagId(location[0], "Required Location") for location in top_locations }
 
         for offer in top_offers:
             offerHash = int(hash(offer['slug']))
             tags = [skillTags[skill] for skill in offer['skills'] if skill in skillTags.keys()]
             datastream.addData(sketches.DataPoint(offerHash,tags))  
+
+            loctags = [locationTags[location] for location in offer['city'] if location in locationTags.keys()]
+            datastream.addData(sketches.DataPoint(offerHash,loctags))
+
 
         datastream.saveStream()      
