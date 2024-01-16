@@ -1,6 +1,5 @@
 import scrapy
 
-
 def get_api_url(page_num):
     return f"https://api.justjoin.it/v2/user-panel/offers?&page={page_num}&sortBy=published&orderBy=DESC&perPage=100&salaryCurrencies=PLN"
 
@@ -38,6 +37,4 @@ class JustJoinItSpider(scrapy.Spider):
         data = response_json['data']
         self.page = response_json['meta']['nextPage']
         for job in data:
-            yield {
-                'href': '/offers/' + job['slug']
-            }
+            yield job
