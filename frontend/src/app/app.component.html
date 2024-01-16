@@ -1,13 +1,29 @@
 <mat-sidenav-container id="app-container">
     <mat-sidenav mode="side" disableClose="true" opened id="app-sidenav">
         <div id="app-logo-container">
-            <img id="app-logo" src="../assets/simple-logo.png" alt="Logo">
+            <img id="app-logo" src="../assets/simple-logo.png" alt="Logo" [style.width.%]="30">
         </div>
         <mat-nav-list id="app-sidenav-content-list">
-            <p mat-list-item *ngFor="let menuItem of menuItems" id="app-sidenav-content-list-row" (click)="navigateToRoute(menuItem.route)">
-                <mat-icon id="app-sidenav-content-list-icon">{{ menuItem.icon }}</mat-icon>
-                <span id="app-sidenav-content-list-label">{{ menuItem.text }}</span>
-            </p>
+            <h4 mat-list-item id="app-sidenav-content-list-row" (click)="navigateToRoute('')">
+                <mat-icon id="app-sidenav-content-list-icon">home</mat-icon>
+                <span id="app-sidenav-content-list-label">Home</span>
+            </h4>
+            <h4 mat-list-item id="app-sidenav-content-list-row" (click)="navigateToRoute('analyzer')">
+                <mat-icon id="app-sidenav-content-list-icon">bar_chart</mat-icon>
+                <span id="app-sidenav-content-list-label">Analyze</span>
+            </h4>
+            <h4 mat-list-item id="app-sidenav-content-list-row" (click)="navigateToProfile()">
+                <mat-icon id="app-sidenav-content-list-icon">person</mat-icon>
+                <span id="app-sidenav-content-list-label">Profile</span>
+            </h4>
+            <h4 *ngIf="user === null" mat-list-item id="app-sidenav-content-list-row" (click)="navigateToRoute('login')">
+                <mat-icon id="app-sidenav-content-list-icon">login</mat-icon>
+                <span id="app-sidenav-content-list-label">Login</span>
+            </h4>
+            <h4 *ngIf="user !== null" mat-list-item id="app-sidenav-content-list-row" (click)="logout()">
+                <mat-icon id="app-sidenav-content-list-icon">logout</mat-icon>
+                <span id="app-sidenav-content-list-label">Logout</span>
+            </h4>
         </mat-nav-list>
     </mat-sidenav>
   

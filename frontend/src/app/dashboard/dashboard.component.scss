@@ -1,6 +1,40 @@
-body,html{
-    height: 100%;
-    margin: 0;
+.dashboard-container{
+    width: 100%;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-dashboard-card {
+    width: 80%;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-dashboard-card{
+    width: 80%;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    padding-top: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.custom-chart {
+    width: 100%;
 }
 
 header{

@@ -4,18 +4,18 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class LocalStorageService {
-
   static themeKey = 'theme-current-name';
+  static userKey = 'user';
 
   store(key: string, value: string): void {
     localStorage[key] = value;
   }
 
-  getValue(key: string): string | null {
+  get(key: string): any | null {
     return localStorage[key] || null;
   }
 
-  clearStorage(key: string): void {
+  clear(key: string): void {
     localStorage.removeItem(key);
   }
 }

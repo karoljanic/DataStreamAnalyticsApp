@@ -1,3 +1,81 @@
-<div id="analyzer-content">
-    <app-request-creator></app-request-creator>
+<div class="requests-container">  
+    <mat-card class="top-requests-card-stream">
+        <h3>Select Stream:</h3>
+        <mat-card-content class="requests-stream-selector">
+            <mat-chip-listbox *ngFor="let streamObj of streams" aria-label="Stream Selection" (click)="streamSelected(streamObj)">
+                <mat-chip-option [selected]="streamObj.selected" class="stream-chip">{{streamObj.stream.name}}</mat-chip-option>
+              </mat-chip-listbox>
+        </mat-card-content>
+    </mat-card>
+    <mat-card class="top-requests-card-tag">
+        <h3>Select Tags:</h3>
+        <div class="tags">
+            <div *ngFor="let tagObj of tags" class="tag-containter">
+                <mat-form-field>
+                    <mat-select placeholder="{{tagObj.category}}" [formControl]="tagObj.form" [(value)]="tagObj.selectedTags" multiple>
+                        <mat-option *ngFor="let tag of tagObj.allTags" [value]="tag">{{tag.name}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <button mat-flat-button color="primary" (click)="addOperands(tagObj.selectedTags)">Add Tags To Sandbox</button>
+            </div>
+        </div>
+    </mat-card>
+    <mat-card class="middle-requests-card">
+        <div class="top-row">
+            <h3>Build Query:</h3> <button mat-icon-button (click)="clearCanvas()"><mat-icon>delete</mat-icon></button>
+        </div>
+        <mat-card-content class="requests-sandbox">
+            <app-request-creator #requestCreatorComponentRef [newOperands]="newOperands"></app-request-creator>
+        </mat-card-content>
+    </mat-card>
+    <mat-card class="bottom-requests-card">
+        <div class="top-row">
+            <h3>Visualize Query:</h3> <button mat-icon-button (click)="visualizeQuery()"><mat-icon>play_arrow</mat-icon></button>
+        </div>
+        <mat-card-content class="requests-tools">
+            <mat-error *ngIf="!queryIsValid" type="warn">Query Is Invalid. Fill In All The Blanks!</mat-error>
+            <mat-spinner *ngIf="showSpinner"></mat-spinner>
+            <div *ngIf="showChart" class="queryResult">
+                <div class="selectDataParamContainer">
+                    <div class="selectDataParam">
+                        <h4 class="selectDataParamTopLabel">Select Data Type:</h4>
+                        <mat-radio-group *ngFor="let type of types" name="dataType" aria-label="Select Data Type" style="margin-right: 1rem;">
+                            <mat-radio-button [checked]="type === currentChartType" value="type" (change)="dataTypeChange(type)">{{type.name}}</mat-radio-button>
+                        </mat-radio-group>
+                    </div>
+                    <div class="selectDataParam">
+                        <h4 class="selectDataParamMidLabel">Select Period:</h4>
+                        <mat-form-field>
+                            <mat-label>Enter a date range</mat-label>
+                            <mat-date-range-input [formGroup]="chartPeriod" [rangePicker]="picker">
+                                <input matStartDate #dateRangeStart formControlName="start" placeholder="Start date">
+                                <input matEndDate #dateRangeEnd formControlName="end" placeholder="End date" (dateChange)="dataPeriodChange(dateRangeStart, dateRangeEnd)">
+                            </mat-date-range-input>
+                            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                            <mat-date-range-picker #picker></mat-date-range-picker>
+                        </mat-form-field>
+                    </div>
+                    <div class="selectDataParam">
+                        <h4 class="selectDataParamBottomLabel">Select Granularity:</h4>
+                        <mat-radio-group *ngFor="let granularity of granularities" name="dataGranulation" aria-label="Select Granularity" style="margin-right: 1rem;">
+                            <mat-radio-button [checked]="granularity === currentChartGranularity" value="type" (change)="dataGranularityChange(granularity)">{{granularity}}</mat-radio-button>
+                        </mat-radio-group>
+                    </div>
+                </div>
+                <canvas class="custom-chart" id="result-char"></canvas>
+                <form [formGroup]="saveResultForm" (ngSubmit)="save()" class="queryResultForm">
+                    <mat-form-field style="width: 100%;">
+                        <mat-label>Enter Title</mat-label>
+                        <input matInput formControlName="title">
+                    </mat-form-field>
+                    <mat-form-field style="width: 100%;">
+                        <mat-label>Enter Description</mat-label>
+                        <textarea matInput formControlName="description"></textarea>
+                    </mat-form-field>
+                    <mat-error class="queryResultFormError" *ngIf="saveResultFormErrorMessages != ''">{{saveResultFormErrorMessages}}</mat-error>
+                    <button mat-flat-button color="primary">Save Result</button>
+                </form>
+            </div>
+        </mat-card-content>
+    </mat-card>
 </div>

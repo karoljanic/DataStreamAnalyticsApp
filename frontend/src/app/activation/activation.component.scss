@@ -1,0 +1,20 @@
+.activation-card {
+    margin: 0 auto;
+    width: 50%;
+    padding: 1rem;
+    text-align: center;
+    display: flex;
+    overflow: hidden;
+}
+
+.activation-card-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.activation-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}

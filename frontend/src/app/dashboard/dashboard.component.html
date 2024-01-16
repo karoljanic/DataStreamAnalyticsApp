@@ -1,32 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module" src="dashboard.component.ts"></script> 
-</head>
+<div class="dashboard-container">  
+    <mat-card class="header-dashboard-card">
+        <h3>Explore Data And Queries Created By Other Users</h3>
+    </mat-card>
 
-<body>
-    <header>Wykresy prezentujące aktualne oferty oraz dodawana ich ilość każdego dnia w ostatnim tygodniu</header>
-    <div class="chart-container">
-        <canvas  id="line-chart" ></canvas>
-        <canvas  id="line-chart1" ></canvas>
-    </div>
-    <!-- <div style="display: block;">
-        <canvas baseChart
-                [datasets]="lineChartData"
-                [labels]="lineChartLabels"
-                [options]="lineChartOptions"
-                [colors]="lineChartColors"
-                [legend]="lineChartLegend"
-                [chartType]="lineChartType"
-                [plugins]="lineChartPlugins">
-        </canvas>
-      </div> -->
-      
-      
-  
-
-</body>
-</html>
+    <mat-card *ngFor="let chart of charts" class="chart-dashboard-card">
+        <canvas class="custom-chart" id="{{chart.id}}"></canvas>
+    </mat-card>
+</div> 
 
