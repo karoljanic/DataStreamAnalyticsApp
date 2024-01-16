@@ -3,7 +3,8 @@ import requests
 import datasketches
 import datetime
 
-url = "http://127.0.0.1:8000/api/"
+#url = "http://127.0.0.1:8000/api/"
+url = "https://datastream-analytics.fly.dev/api/"
 streams_url = url + "streams/"
 tags_url = url + "tags/"
 types_url = url + "types/"
