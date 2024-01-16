@@ -7,7 +7,7 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 import json
-import sketches
+import nofluffscraper.sketches as sketches
 
 class NofluffscraperPipeline:
     def process_item(self, item, spider):
@@ -39,15 +39,17 @@ class JustJoinItPipeline:
     def close_spider(self, spider):
         top_skills = sorted(self.skills_freq.items(), key=lambda item: item[1], reverse=True)[:100]
 
-        top_offers = [offer for offer in self.offers if offer['skills'] in top_skills]
+        top_offers = [offer for offer in self.offers]
         with open('skills.txt', 'w') as f:
             for skill, freq in top_skills:
                 f.write(f"{skill}: {freq}\n")
 
-        datastream = sketches.DataStream(1, 0)
+        datastream = sketches.DataStream(2, 2)
         skillTags = { skill[0] : datastream.getOrAddTagId(skill[0], "Required skill") for skill in top_skills }
 
         for offer in top_offers:
-            hash = int(hash(offer['title']))
-            tags = [skillTags[skill] for skill in offer['skills']]
-            datastream.addData(sketches.DataPoint(hash,tags))        
+            offerHash = int(hash(offer['slug']))
+            tags = [skillTags[skill] for skill in offer['skills'] if skill in skillTags.keys()]
+            datastream.addData(sketches.DataPoint(offerHash,tags))  
+
+        datastream.saveStream()      

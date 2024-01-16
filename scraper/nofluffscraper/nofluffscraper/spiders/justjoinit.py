@@ -36,5 +36,6 @@ class JustJoinItSpider(scrapy.Spider):
         response_json = response.json()
         data = response_json['data']
         self.page = response_json['meta']['nextPage']
+        #self.page = None
         for job in data:
             yield job

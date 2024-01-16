@@ -19,11 +19,11 @@ class DataStream:
     def __init__(self, streamId: int, typeId: int) -> None:
         self.streamId = streamId
         self.typeId = typeId
-        self.streamMeta = requests.get(streams_url + str(id) + "/").json()
+        self.streamMeta = requests.get(streams_url + str(streamId) + "/").json()
         self.streamTags = { tag['name'] : tag['id'] for tag in self.streamMeta['tags'] }
         self.data = []
 
-    def getOrAddTagId(self, category, name):
+    def getOrAddTagId(self, name, category):
         if name in self.streamTags.keys():
             return self.streamTags[name]
         else:
@@ -49,7 +49,7 @@ class DataStream:
         date = datetime.date.today()
         s = requests.Session()
 
-        for (tagId, sketch) in sketches:
+        for (tagId, sketch) in sketches.items():
             ds_bytes = base64.b64encode(sketch.to_bytes())
 
             r = s.post(sketches_url, data={ "tag": tagId, "typ": self.typeId, "day": date, "sketch": ds_bytes })
