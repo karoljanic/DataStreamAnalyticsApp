@@ -23,9 +23,7 @@ class DataStream:
         self.streamTags = { tag['name'] : tag['id'] for tag in self.streamMeta['tags'] }
         self.data = []
 
-    def getOrAddTagId(self, tag):
-        name = tag['name']
-        category = tag['category']
+    def getOrAddTagId(self, category, name):
         if name in self.streamTags.keys():
             return self.streamTags[name]
         else:
