@@ -1,10 +1,12 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, Sanitizer, ViewChild } from '@angular/core';
 import { AnalyzeDataService } from '../services/analyzedata.service';
 import { ChartPoint, Query, Stream, Tag, Type } from './sketches';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { RequestCreatorComponent, RequestNodeType } from './request-creator/request-creator.component';
 import Chart from 'chart.js/auto';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DomSanitizer } from '@angular/platform-browser';
+import { FileService } from '../services/file.service';
 
 @Component({
   selector: 'app-data-analyze',
@@ -25,23 +27,25 @@ export class DataAnalyzeComponent {
   showChart: boolean = false;
 
   saveResultForm: FormGroup;
+  downloadSaveForm: FormGroup;
   saveResultFormErrorMessages = '';
 
   chartPeriod = new FormGroup({
-    start: new FormControl<Date | null>(new Date('01/01/2020')),
-    end: new FormControl<Date | null>(new Date('01/31/2020')),
+    start: new FormControl<Date | null>(new Date('01/01/2024')),
+    end: new FormControl<Date | null>(new Date('01/31/2024')),
   });
 
   currentChartPoints: ChartPoint[] = [];
   currentChartType: Type | undefined;
   currentChartGranularity: string = 'daily';
-  currentChartPeriod: { start: string, end: string } = { start: '2020-01-01', end: '2020-01-31' };
+  currentChartPeriod: { start: string, end: string } = { start: '2024-01-01', end: '2024-01-31' };
   currentQuery: Query | undefined = undefined;
   chart: Chart | undefined;
   currentChartDatas: string[] = [];
   currentChartValues: number[] = [];
+  downloadJsonHref: any;
 
-  constructor(private analyzeDataService: AnalyzeDataService, private formBuilder: FormBuilder, private snackBar: MatSnackBar, private sanitizer: DomSanitizer) {
+  constructor(private analyzeDataService: AnalyzeDataService, private fileservice: FileService, private formBuilder: FormBuilder, private snackBar: MatSnackBar) {
     this.analyzeDataService.getStreams().subscribe((data: any) => {
       this.streams = data.map((stream: Stream) => {
         return { stream: stream, selected: false };
@@ -49,6 +53,11 @@ export class DataAnalyzeComponent {
     });
 
     this.saveResultForm = this.formBuilder.group({
+      title: ['', Validators.required],
+      description: ['', Validators.required],
+    });
+
+    this.downloadSaveForm = this.formBuilder.group({
       title: ['', Validators.required],
       description: ['', Validators.required],
     });
@@ -136,6 +145,10 @@ export class DataAnalyzeComponent {
     this.generateChart();
   }
 
+  download() {
+    this.fileservice.downloadJson(this.currentChartPoints, "saved_query.json");
+  }
+
   save() {
     if (this.saveResultForm.valid) {
       const title = this.saveResultForm.get('title')!.value as string;
@@ -153,21 +166,18 @@ export class DataAnalyzeComponent {
         this.saveResultFormErrorMessages = 'Description must be at most 200 characters long.';
       }
       else {
-        this.saveResultFormErrorMessages = '';
-      }
+        this.saveResultFormErrorMessages = 'Saved';
 
-      this.snackBar.open('Functionality available in next version.', 'Close');
+        this.currentQuery!.title = title
+        this.currentQuery!.description = description
+
+        this.analyzeDataService.saveQueryTitleAndDesc(this.currentQuery!).subscribe()
+      }
     }
     else {
       this.saveResultFormErrorMessages = 'Title and description are required.';
     }
   }
-
-  download() {
-    var theJSON = JSON.stringify(this.resJsonResponse);
-    var uri = this.sanitizer.bypassSecurityTrustUrl("data:text/json;charset=UTF-8," + encodeURIComponent(theJSON));
-    this.downloadJsonHref = uri;
-}
 
   private divideTagsByCategory(tags: Tag[]): Tag[][] {
     const divided: { [key: string]: Tag[] } = {};
@@ -212,6 +222,7 @@ export class DataAnalyzeComponent {
 
   private generateChart(): void {
     this.analyzeDataService.getQuery(this.currentQuery!, this.currentChartPeriod.start, this.currentChartPeriod.end, this.currentChartType!.id).subscribe((points: any) => {
+      console.log("aaaaaaaaa")
       this.currentChartPoints = points
       this.showChart = true;
       setTimeout(() => {
@@ -240,6 +251,7 @@ export class DataAnalyzeComponent {
         else {
           this.chart.data.labels = this.currentChartDatas;
           this.chart.data.datasets[0] = { data: this.currentChartValues };
+          this.chart.update()
         }
       }, 200); // waiting for contex creation
     });
