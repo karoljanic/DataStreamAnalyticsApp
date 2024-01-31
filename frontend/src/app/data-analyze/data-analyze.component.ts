@@ -28,8 +28,8 @@ export class DataAnalyzeComponent {
   saveResultFormErrorMessages = '';
 
   chartPeriod = new FormGroup({
-    start: new FormControl<Date | null>(new Date('01/01/2020')),
-    end: new FormControl<Date | null>(new Date('01/31/2020')),
+    start: new FormControl<Date | null>(new Date('01/01/2024')),
+    end: new FormControl<Date | null>(new Date('01/31/2024')),
   });
 
   currentChartPoints: ChartPoint[] = [];
@@ -206,6 +206,7 @@ export class DataAnalyzeComponent {
 
   private generateChart(): void {
     this.analyzeDataService.getQuery(this.currentQuery!, this.currentChartPeriod.start, this.currentChartPeriod.end, this.currentChartType!.id).subscribe((points: any) => {
+      console.log("aaaaaaaaa")
       this.currentChartPoints = points
       this.showChart = true;
       setTimeout(() => {
@@ -234,6 +235,7 @@ export class DataAnalyzeComponent {
         else {
           this.chart.data.labels = this.currentChartDatas;
           this.chart.data.datasets[0] = { data: this.currentChartValues };
+          this.chart.update()
         }
       }, 200); // waiting for contex creation
     });
