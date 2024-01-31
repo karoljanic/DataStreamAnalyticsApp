@@ -253,72 +253,74 @@ std::vector<StreamElement> generateStream(uint32_t streamSize) {
 }
 
 int main() {
-  // Test - estimate cardinality
-  const uint32_t samplesNumber{8192};
+  /* EXPRESSION TREE TO FDNF CONVERSION */
 
-  std::vector<StreamElement> numbers2k{};
-  std::vector<StreamElement> numbers3k{};
-  std::vector<StreamElement> numbers6k{};
-  std::vector<StreamElement> numbers2kOr3k{};
-  std::vector<StreamElement> numbers2kAnd3k{};
-  std::vector<StreamElement> numbers3kNot6k{};
+  /* TEST - ESTIMATE CARDINALITY */
+  // const uint32_t samplesNumber{8192};
 
-  for (uint32_t num = 1; num <= samplesNumber; num++) {
-    if (num % 2 == 0) {
-      numbers2k.emplace_back(StreamElement{num, 1});
-    }
+  // std::vector<StreamElement> numbers2k{};
+  // std::vector<StreamElement> numbers3k{};
+  // std::vector<StreamElement> numbers6k{};
+  // std::vector<StreamElement> numbers2kOr3k{};
+  // std::vector<StreamElement> numbers2kAnd3k{};
+  // std::vector<StreamElement> numbers3kNot6k{};
 
-    if (num % 3 == 0) {
-      numbers3k.emplace_back(StreamElement{num, 1});
-    }
+  // for (uint32_t num = 1; num <= samplesNumber; num++) {
+  //   if (num % 2 == 0) {
+  //     numbers2k.emplace_back(StreamElement{num, 1});
+  //   }
 
-    if (num % 6 == 0) {
-      numbers6k.emplace_back(StreamElement{num, 1});
-    }
+  //   if (num % 3 == 0) {
+  //     numbers3k.emplace_back(StreamElement{num, 1});
+  //   }
 
-    if ((num % 2 == 0) || (num % 3 == 0)) {
-      numbers2kOr3k.emplace_back(StreamElement{num, 1});
-    }
+  //   if (num % 6 == 0) {
+  //     numbers6k.emplace_back(StreamElement{num, 1});
+  //   }
 
-    if ((num % 2 == 0) && (num % 3 == 0)) {
-      numbers2kAnd3k.emplace_back(StreamElement{num, 1});
-    }
+  //   if ((num % 2 == 0) || (num % 3 == 0)) {
+  //     numbers2kOr3k.emplace_back(StreamElement{num, 1});
+  //   }
 
-    if ((num % 3 == 0) && (num % 6 != 0)) {
-      numbers3kNot6k.emplace_back(StreamElement{num, 1});
-    }
-  }
+  //   if ((num % 2 == 0) && (num % 3 == 0)) {
+  //     numbers2kAnd3k.emplace_back(StreamElement{num, 1});
+  //   }
 
-  Sketch sketch2k{};
-  createFastExpSketch(sketch2k, numbers2k, SEED);
-  Sketch sketch3k{};
-  createFastExpSketch(sketch3k, numbers3k, SEED);
-  Sketch sketch6k{};
-  createFastExpSketch(sketch6k, numbers6k, SEED);
-  Sketch sketch2kOr3k{};
-  createFastExpSketch(sketch2kOr3k, numbers2kOr3k, SEED);
-  Sketch sketch2kAnd3k{};
-  createFastExpSketch(sketch2kAnd3k, numbers2kAnd3k, SEED);
-  Sketch sketch3kNot6k{};
-  createFastExpSketch(sketch3kNot6k, numbers3kNot6k, SEED);
+  //   if ((num % 3 == 0) && (num % 6 != 0)) {
+  //     numbers3kNot6k.emplace_back(StreamElement{num, 1});
+  //   }
+  // }
 
-  std::cout << "cardinality of 2k numbers: " << numbers2k.size() << " "
-            << estimateCardinality(sketch2k) << std::endl;
-  std::cout << "cardinality of 3k numbers: " << numbers3k.size() << " "
-            << estimateCardinality(sketch3k) << std::endl;
-  std::cout << "cardinality of 6k numbers: " << numbers6k.size() << " "
-            << estimateCardinality(sketch6k) << std::endl;
-  std::cout << "cardinality of 2kOr3k numbers: " << numbers2kOr3k.size() << " "
-            << estimateCardinality({sketch2k, sketch3k}, {{1, -2}, {-1, 2}})
-            << std::endl;
-  std::cout << "cardinality of 2kAnd3k numbers: " << numbers2kAnd3k.size()
-            << " " << estimateCardinality({sketch2k, sketch3k}, {{1, 2}})
-            << std::endl;
-  std::cout << "cardinality of 3kNot6k numbers: " << numbers3kNot6k.size()
-            << " " << estimateCardinality({sketch3k, sketch6k}, {{1, -2}})
-            << std::endl;
+  // Sketch sketch2k{};
+  // createFastExpSketch(sketch2k, numbers2k, SEED);
+  // Sketch sketch3k{};
+  // createFastExpSketch(sketch3k, numbers3k, SEED);
+  // Sketch sketch6k{};
+  // createFastExpSketch(sketch6k, numbers6k, SEED);
+  // Sketch sketch2kOr3k{};
+  // createFastExpSketch(sketch2kOr3k, numbers2kOr3k, SEED);
+  // Sketch sketch2kAnd3k{};
+  // createFastExpSketch(sketch2kAnd3k, numbers2kAnd3k, SEED);
+  // Sketch sketch3kNot6k{};
+  // createFastExpSketch(sketch3kNot6k, numbers3kNot6k, SEED);
 
-  // Chart data generation
+  // std::cout << "cardinality of 2k numbers: " << numbers2k.size() << " "
+  //           << estimateCardinality(sketch2k) << std::endl;
+  // std::cout << "cardinality of 3k numbers: " << numbers3k.size() << " "
+  //           << estimateCardinality(sketch3k) << std::endl;
+  // std::cout << "cardinality of 6k numbers: " << numbers6k.size() << " "
+  //           << estimateCardinality(sketch6k) << std::endl;
+  // std::cout << "cardinality of 2kOr3k numbers: " << numbers2kOr3k.size() << " "
+  //           << estimateCardinality({sketch2k, sketch3k}, {{1, -2}, {-1, 2}})
+  //           << std::endl;
+  // std::cout << "cardinality of 2kAnd3k numbers: " << numbers2kAnd3k.size()
+  //           << " " << estimateCardinality({sketch2k, sketch3k}, {{1, 2}})
+  //           << std::endl;
+  // std::cout << "cardinality of 3kNot6k numbers: " << numbers3kNot6k.size()
+  //           << " " << estimateCardinality({sketch3k, sketch6k}, {{1, -2}})
+  //           << std::endl;
+
+  /* CHART DATA GENERATION */
   // std::vector<uint32_t> streamSizes{};
   // for(uint32_t i = 50; i <= 1000; i += 50) {
   //     streamSizes.emplace_back(i);
