@@ -28,8 +28,8 @@ export class DataAnalyzeComponent {
   saveResultFormErrorMessages = '';
 
   chartPeriod = new FormGroup({
-    start: new FormControl<Date | null>(new Date('01/01/2024')),
-    end: new FormControl<Date | null>(new Date('01/31/2024')),
+    start: new FormControl<Date | null>(new Date('01/01/2020')),
+    end: new FormControl<Date | null>(new Date('01/31/2020')),
   });
 
   currentChartPoints: ChartPoint[] = [];
@@ -41,7 +41,7 @@ export class DataAnalyzeComponent {
   currentChartDatas: string[] = [];
   currentChartValues: number[] = [];
 
-  constructor(private analyzeDataService: AnalyzeDataService, private formBuilder: FormBuilder, private snackBar: MatSnackBar) {
+  constructor(private analyzeDataService: AnalyzeDataService, private formBuilder: FormBuilder, private snackBar: MatSnackBar, private sanitizer: DomSanitizer) {
     this.analyzeDataService.getStreams().subscribe((data: any) => {
       this.streams = data.map((stream: Stream) => {
         return { stream: stream, selected: false };
@@ -153,18 +153,21 @@ export class DataAnalyzeComponent {
         this.saveResultFormErrorMessages = 'Description must be at most 200 characters long.';
       }
       else {
-        this.saveResultFormErrorMessages = 'Saved';
-
-        this.currentQuery!.title = title
-        this.currentQuery!.description = description
-
-        this.analyzeDataService.saveQueryTitleAndDesc(this.currentQuery!).subscribe()
+        this.saveResultFormErrorMessages = '';
       }
+
+      this.snackBar.open('Functionality available in next version.', 'Close');
     }
     else {
       this.saveResultFormErrorMessages = 'Title and description are required.';
     }
   }
+
+  download() {
+    var theJSON = JSON.stringify(this.resJsonResponse);
+    var uri = this.sanitizer.bypassSecurityTrustUrl("data:text/json;charset=UTF-8," + encodeURIComponent(theJSON));
+    this.downloadJsonHref = uri;
+}
 
   private divideTagsByCategory(tags: Tag[]): Tag[][] {
     const divided: { [key: string]: Tag[] } = {};
@@ -209,7 +212,6 @@ export class DataAnalyzeComponent {
 
   private generateChart(): void {
     this.analyzeDataService.getQuery(this.currentQuery!, this.currentChartPeriod.start, this.currentChartPeriod.end, this.currentChartType!.id).subscribe((points: any) => {
-      console.log("aaaaaaaaa")
       this.currentChartPoints = points
       this.showChart = true;
       setTimeout(() => {
@@ -238,7 +240,6 @@ export class DataAnalyzeComponent {
         else {
           this.chart.data.labels = this.currentChartDatas;
           this.chart.data.datasets[0] = { data: this.currentChartValues };
-          this.chart.update()
         }
       }, 200); // waiting for contex creation
     });

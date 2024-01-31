@@ -74,6 +74,7 @@
                     </mat-form-field>
                     <mat-error class="queryResultFormError" *ngIf="saveResultFormErrorMessages != ''">{{saveResultFormErrorMessages}}</mat-error>
                     <button mat-flat-button color="primary">Save Result</button>
+                    <button mat-flat-button color="primary" (click)="download()">Download</button>
                 </form>
             </div>
         </mat-card-content>
