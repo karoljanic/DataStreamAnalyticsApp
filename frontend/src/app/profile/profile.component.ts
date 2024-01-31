@@ -122,27 +122,27 @@ export class ProfileComponent implements OnInit {
     })
   }
 
-  changePicture(): void {
-    const dialogRef = this.dialog.open(ChangePictureComponent, {
-      data: { picture: null, pictureName: '' },
-    });
+  // changePicture(): void {
+  //   const dialogRef = this.dialog.open(ChangePictureComponent, {
+  //     data: { picture: null, pictureName: '' },
+  //   });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result !== undefined && result.picture !== null) {
-        this.snackBar.open('Functionality available in next version.', 'Close');
-        // var newUserProfile: UserProfile = { ...this.userProfile! };
-        // newUserProfile.picture = result.picture;
-        // this.userProfileService.updateUserProfile(newUserProfile).subscribe({
-        //   next: (data) => {
-        //     this.userProfile = data;
-        //   },
-        //   error: (error) => {
-        //     console.log(error);
-        //   }
-        // });
-      }
-    })
-  }
+  //   dialogRef.afterClosed().subscribe(result => {
+  //     if (result !== undefined && result.picture !== null) {
+  //       this.snackBar.open('Functionality available in next version.', 'Close');
+  //       // var newUserProfile: UserProfile = { ...this.userProfile! };
+  //       // newUserProfile.picture = result.picture;
+  //       // this.userProfileService.updateUserProfile(newUserProfile).subscribe({
+  //       //   next: (data) => {
+  //       //     this.userProfile = data;
+  //       //   },
+  //       //   error: (error) => {
+  //       //     console.log(error);
+  //       //   }
+  //       // });
+  //     }
+  //   })
+  // }
 
   deleteProfile(): void {
     const dialogRef = this.dialog.open(DeleteAccountComponent, {

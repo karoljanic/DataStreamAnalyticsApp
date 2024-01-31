@@ -44,4 +44,4 @@ class DataSketchSerializer(serializers.ModelSerializer):
 class QuerySerializer(serializers.ModelSerializer):
     class Meta:
         model = Query
-        fields = ['id', 'tree_form', 'dnf']
+        fields = ['id', 'tree_form', 'dnf', 'title', 'description']

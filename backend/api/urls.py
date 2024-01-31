@@ -14,6 +14,7 @@ urlpatterns = [
     path('types/', views.TypeList.as_view()),
 
     path('queries/', views.QueryList.as_view()),
+    path('queries/<int:pk>', views.QueryDetail.as_view()),
     path('queries/random/<int:num>', views.QueryRandom.as_view()),
 
     path('result/<int:pk>/', views.QueryResult.as_view()),

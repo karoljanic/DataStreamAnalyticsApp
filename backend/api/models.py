@@ -48,6 +48,8 @@ from datetime import date
 class Query(models.Model):
 	tree_form = models.JSONField()
 	dnf = models.JSONField(editable=False)
+	title = models.CharField(max_length=51, default="")
+	description = models.CharField(max_length=201, default="")
 
 	def save(self, *args, **kwargs):
 		self.dnf = api.querytrees.tree_to_table(self.tree_form)

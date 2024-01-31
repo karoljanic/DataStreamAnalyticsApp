@@ -153,10 +153,13 @@ export class DataAnalyzeComponent {
         this.saveResultFormErrorMessages = 'Description must be at most 200 characters long.';
       }
       else {
-        this.saveResultFormErrorMessages = '';
-      }
+        this.saveResultFormErrorMessages = 'Saved';
 
-      this.snackBar.open('Functionality available in next version.', 'Close');
+        this.currentQuery!.title = title
+        this.currentQuery!.description = description
+
+        this.analyzeDataService.saveQueryTitleAndDesc(this.currentQuery!).subscribe()
+      }
     }
     else {
       this.saveResultFormErrorMessages = 'Title and description are required.';

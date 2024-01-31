@@ -42,6 +42,10 @@ class QueryList(generics.ListCreateAPIView):
     queryset = Query.objects.all()
     serializer_class = QuerySerializer
 
+class QueryDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Query.objects.all()
+    serializer_class = QuerySerializer
+
 class QueryResult(APIView):
     def get(self, request, pk):
         start_date = date.fromisoformat(self.request.GET["start-date"])
@@ -79,7 +83,7 @@ class QueryRandom(APIView):
     pagination_class = None
 
     def get(self, request, num):
-        queries = Query.objects.order_by("-id").all()[:num]
+        queries = Query.objects.order_by("-id").all().exclude(title="")[:num]
         result = [QuerySerializer(query).data for query in queries]
 
         return Response(result)

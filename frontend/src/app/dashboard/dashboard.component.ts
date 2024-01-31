@@ -13,7 +13,7 @@ import { ChartPoint, Query } from '../data-analyze/sketches';
 export class DashboardComponent implements AfterViewInit {
 
   queries: Query[] = [];
-  charts: { id: number, tree: any, points: ChartPoint[], chart: Chart | undefined }[] = [];
+  charts: { id: number, tree: any, points: ChartPoint[], title: string, description: string, chart: Chart | undefined }[] = [];
 
   constructor(private analyzeDataService: AnalyzeDataService) { }
 
@@ -22,9 +22,9 @@ export class DashboardComponent implements AfterViewInit {
       next: (data) => {
         this.queries = data;
         for (const query of this.queries) {
-          this.analyzeDataService.getQuery(query, '2020-01-01', '2020-01-31', 1).subscribe({
+          this.analyzeDataService.getQuery(query, '2024-01-01', '2024-01-31', 1).subscribe({
             next: (data) => {
-              this.charts.push({ id: query.id, tree: query.tree_form, points: data, chart: undefined });
+              this.charts.push({ id: query.id, tree: query.tree_form, title: query.title, description: query.description, points: data, chart: undefined });
               setTimeout(() => this.generateChart(query.id), 200);
             },
             error: (error) => { }
@@ -39,6 +39,8 @@ export class DashboardComponent implements AfterViewInit {
   private generateChart(id: number): void {
     var chart = this.charts.find((chart) => chart.id === id)!.chart;
     const treeForm = this.charts.find((chart) => chart.id === id)!.tree;
+    const title = this.charts.find((chart) => chart.id === id)!.title;
+    const description = this.charts.find((chart) => chart.id === id)!.description;
     const points = this.charts.find((chart) => chart.id === id)!.points;
     const chartDatas = points.map((point: ChartPoint) => point.day);
     const chartValues = points.map((point: ChartPoint) => point.value);
@@ -60,7 +62,7 @@ export class DashboardComponent implements AfterViewInit {
           },
           plugins: {
             legend: { display: false },
-            title: { display: true, text: this.getChartTitle(treeForm), font: { size: 20, family: 'Raleway' } }
+            title: { display: true, text: title, font: { size: 20, family: 'Raleway' } }
           }
         }
       });

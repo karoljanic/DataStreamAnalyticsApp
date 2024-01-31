@@ -35,4 +35,8 @@ export class AnalyzeDataService {
     getRandomQueies(n: number): Observable<Query[]> {
         return this.http.get<Query[]>(AnalyzeDataService.randomQueriesApiUri + '/' + n.toString());
     }
+
+    saveQueryTitleAndDesc(query: Query) {
+        return this.http.patch<Query>(AnalyzeDataService.processQueryApiUri + query.id, { title: query.title, description: query.description });
+    }
 }

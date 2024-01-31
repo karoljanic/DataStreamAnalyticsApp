@@ -30,4 +30,6 @@ export interface ChartPoint {
 export interface Query {
     id: number;
     tree_form: any;
+    title: string,
+    description: string,
 }
